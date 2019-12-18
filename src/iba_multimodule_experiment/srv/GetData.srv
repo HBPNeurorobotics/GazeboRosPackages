@@ -1,0 +1,24 @@
+int16 id
+int16 step
+---
+std_msgs/Bool lock
+float64[] m1
+float64[] m2
+float64[] m3
+float64[] m4
+float64[] m5
+float64[] m6
+float64[] m7
+float64[] m8
+float64[] m9
+float64[] m10
+float64[] m11
+float64[] m12
+float64[] m13
+float64[] m14
+float64[] m15
+float64[] m16
+float64[] m17
+float64[] m18
+float64[] m19
+float64[] m20
