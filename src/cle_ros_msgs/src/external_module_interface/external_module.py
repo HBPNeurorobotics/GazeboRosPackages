@@ -32,7 +32,7 @@ class ExternalModule(object):
         self.module_id = 0
         self.n_steps = steps
         self.step = 0
-        self.time = 0.0
+        self._time = 0.0
         self.database_req = GetDataRequest()
         self.database_resp = GetDataResponse()
 
@@ -55,12 +55,12 @@ class ExternalModule(object):
         pass
 
     def run_step_call(self, req):
-        self.time += 1.0
+        self._time += 1.0
         for self.step in range(1, self.n_steps + 1):
             while True:
                 self.database_resp = self.database_proxy(self.module_id, self.step-1)
                 if self.database_resp.lock.data == False:
-                    print "Module " + str(self.module_id) + " time: " + "{0:.2f}".format(self.time + float(self.step-1)/self.n_steps) + " step: " + str(self.step) + " started!"
+                    # print "Module " + str(self.module_id) + " time: " + "{0:.2f}".format(self._time + float(self.step-1)/self.n_steps) + " step: " + str(self.step) + " started!"
                     break
                 time.sleep(0.001)
 
@@ -70,7 +70,7 @@ class ExternalModule(object):
             while True:
                 self.update_database_resp = self.update_database_proxy(self.module_id, self.step, self.module_data)
                 if self.update_database_resp.lock.data == False:
-                    print "Module " + str(self.module_id) + " time: " + "{0:.2f}".format(self.time + float(self.step)/self.n_steps) + " step: " + str(self.step) + " ended!"
+                    # print "Module " + str(self.module_id) + " time: " + "{0:.2f}".format(self._time + float(self.step)/self.n_steps) + " step: " + str(self.step) + " ended!"
                     break
                 time.sleep(0.001)
         return RunStepResponse()
