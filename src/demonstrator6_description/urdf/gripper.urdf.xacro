@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="prismatic_gripper">
   <joint name="base_link_joint" type="fixed">
-    <origin rpy="1.5707963705062866 -0 -0" xyz="0 0 0"/>
+    <origin rpy="1.5707963705062866 -0 -0" xyz="0 0 0.071"/>
     <parent link="iiwa_link_7"/>
     <child link="base_link_link"/>
     <axis xyz="0 0 1"/>
@@ -30,7 +30,7 @@
   <link name="base_link_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.5"/>
+      <mass value="0.05"/>
       <inertia ixx="0.00017" ixy="0.0" ixz="0.0" iyy="0.0018" iyz="0.0" izz="0.0017"/>
     </inertial>
     <visual>
@@ -49,7 +49,7 @@
   <link name="gripper_left_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.1"/>
+      <mass value="0.01"/>
       <inertia ixx="0.0002" ixy="0.0" ixz="0.0" iyy="0.000195" iyz="0.0" izz="0.000021"/>
     </inertial>
     <visual>
@@ -68,7 +68,7 @@
   <link name="gripper_right_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.1"/>
+      <mass value="0.01"/>
       <inertia ixx="0.0002" ixy="0.0" ixz="0.0" iyy="0.000195" iyz="0.0" izz="0.000021"/>
     </inertial>
     <visual>
@@ -84,6 +84,15 @@
       </geometry>
     </collision>
   </link>
+  <!--<gazebo reference="gripper_left_link">
+    <selfCollide>False</selfCollide>
+  </gazebo>
+  <gazebo reference="gripper_right_link">
+    <selfCollide>False</selfCollide>
+  </gazebo>
+  <gazebo reference="base_link_link">
+    <selfCollide>False</selfCollide>
+  </gazebo>-->
   <transmission name="gripper_tran_left">
     <robotNamespace>/iiwa</robotNamespace>
     <type>transmission_interface/SimpleTransmission</type>
