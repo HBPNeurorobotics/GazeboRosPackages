@@ -54,7 +54,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_0.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/visual/link_0.dae"/>
         </geometry>
         <material name="Grey"/>
       </visual>
@@ -62,7 +62,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_0_s.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/collision/link_0.dae"/>
         </geometry>
         <material name="Grey"/>
       </collision>
@@ -101,7 +101,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_1.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/visual/link_1.dae"/>
         </geometry>
         <material name="Orange"/>
       </visual>
@@ -109,7 +109,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_1_s.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/collision/link_1.dae"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -140,7 +140,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_2.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/visual/link_2.dae"/>
         </geometry>
         <material name="Orange"/>
       </visual>
@@ -148,7 +148,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_2_s.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/collision/link_2.dae"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -179,7 +179,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_3.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/visual/link_3.dae"/>
         </geometry>
         <material name="Orange"/>
       </visual>
@@ -187,7 +187,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_3_s.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/collision/link_3.dae"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -218,7 +218,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_4.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/visual/link_4.dae"/>
         </geometry>
         <material name="Orange"/>
       </visual>
@@ -226,7 +226,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_4_s.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/collision/link_4.dae"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -257,7 +257,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_5.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/visual/link_5.dae"/>
         </geometry>
         <material name="Orange"/>
       </visual>
@@ -265,7 +265,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_5_s.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/collision/link_5.dae"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -296,7 +296,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_6.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/visual/link_6.dae"/>
         </geometry>
         <material name="Orange"/>
       </visual>
@@ -304,7 +304,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_6_s.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/collision/link_6.dae"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -335,8 +335,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-<!--           <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_7.stl"/> -->
-		  <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_7-MF-Touch-pneumatisch.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/visual/link_7.dae"/>
         </geometry>
         <material name="Grey"/>
       </visual>
@@ -344,39 +343,10 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-<!--           <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_7_s.stl"/> -->
-		  <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_7-MF-Touch-pneumatisch_s.stl"/>
+          <mesh filename="package://demonstrator6_description/meshes/collision/link_7.dae"/>
         </geometry>
         <material name="Grey"/>
       </collision>
-    </link>
-
-    <joint name="${robot_name}_joint_ee" type="fixed">
-      <parent link="${robot_name}_link_7"/>
-      <child link="${robot_name}_link_ee"/>
-      <origin xyz="0 0 0.045" rpy="0 -${PI/2} 0"/>
-    </joint>
-
-    <link name="${robot_name}_link_ee">
-    </link>
-
-    <joint name="${robot_name}_joint_ee_kuka" type="fixed">
-      <parent link="${robot_name}_link_7"/>
-      <child link="${robot_name}_link_ee_kuka"/>
-      <origin xyz="0 0 0.045" rpy="${PI} ${PI} ${PI}"/>
-      <axis xyz="0 0 1"/>
-    </joint>
-
-	<joint name="${robot_name}_joint_ee_kuka_mft_pneum" type="fixed">
-      <parent link="${robot_name}_link_7"/>
-      <child link="${robot_name}_link_ee_kuka_mft_pneum"/>
-      <origin xyz="0 0 0.071" rpy="0 -${PI/2} 0"/>
-    </joint>
-
-    <link name="${robot_name}_link_ee_kuka">
-    </link>
-
-	<link name="${robot_name}_link_ee_kuka_mft_pneum">
     </link>
 
     <!--Extensions -->

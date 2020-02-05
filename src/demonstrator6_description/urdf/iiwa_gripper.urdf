@@ -45,14 +45,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_0.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/visual/link_0.dae"/>
       </geometry>
       <material name="Grey"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_0_s.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/collision/link_0.dae"/>
       </geometry>
       <material name="Grey"/>
     </collision>
@@ -82,14 +82,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_1.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/visual/link_1.dae"/>
       </geometry>
       <material name="Orange"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_1_s.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/collision/link_1.dae"/>
       </geometry>
       <material name="Orange"/>
     </collision>
@@ -113,14 +113,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_2.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/visual/link_2.dae"/>
       </geometry>
       <material name="Orange"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_2_s.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/collision/link_2.dae"/>
       </geometry>
       <material name="Orange"/>
     </collision>
@@ -144,14 +144,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_3.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/visual/link_3.dae"/>
       </geometry>
       <material name="Orange"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_3_s.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/collision/link_3.dae"/>
       </geometry>
       <material name="Orange"/>
     </collision>
@@ -175,14 +175,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_4.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/visual/link_4.dae"/>
       </geometry>
       <material name="Orange"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_4_s.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/collision/link_4.dae"/>
       </geometry>
       <material name="Orange"/>
     </collision>
@@ -206,14 +206,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_5.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/visual/link_5.dae"/>
       </geometry>
       <material name="Orange"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_5_s.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/collision/link_5.dae"/>
       </geometry>
       <material name="Orange"/>
     </collision>
@@ -237,14 +237,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_6.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/visual/link_6.dae"/>
       </geometry>
       <material name="Orange"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_6_s.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/collision/link_6.dae"/>
       </geometry>
       <material name="Orange"/>
     </collision>
@@ -269,42 +269,18 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <!--           <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_7.stl"/> -->
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/visual/link_7-MF-Touch-pneumatisch.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/visual/link_7.dae"/>
       </geometry>
       <material name="Grey"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <!--           <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_7_s.stl"/> -->
-        <mesh filename="package://demonstrator6_description/meshes/iiwa14/collision/link_7-MF-Touch-pneumatisch_s.stl"/>
+        <mesh filename="package://demonstrator6_description/meshes/collision/link_7.dae"/>
       </geometry>
       <material name="Grey"/>
     </collision>
   </link>
-  <joint name="iiwa_joint_ee" type="fixed">
-    <parent link="iiwa_link_7"/>
-    <child link="iiwa_link_ee"/>
-    <origin rpy="0 -1.57079632679 0" xyz="0 0 0.045"/>
-  </joint>
-  <link name="iiwa_link_ee">
-    </link>
-  <joint name="iiwa_joint_ee_kuka" type="fixed">
-    <parent link="iiwa_link_7"/>
-    <child link="iiwa_link_ee_kuka"/>
-    <origin rpy="3.14159265359 3.14159265359 3.14159265359" xyz="0 0 0.045"/>
-    <axis xyz="0 0 1"/>
-  </joint>
-  <joint name="iiwa_joint_ee_kuka_mft_pneum" type="fixed">
-    <parent link="iiwa_link_7"/>
-    <child link="iiwa_link_ee_kuka_mft_pneum"/>
-    <origin rpy="0 -1.57079632679 0" xyz="0 0 0.071"/>
-  </joint>
-  <link name="iiwa_link_ee_kuka">
-    </link>
-  <link name="iiwa_link_ee_kuka_mft_pneum">
-    </link>
   <gazebo reference="iiwa_joint_7">
     <provideFeedback>true</provideFeedback>
   </gazebo>
@@ -463,7 +439,7 @@
     </actuator>
   </transmission>
   <joint name="base_link_joint" type="fixed">
-    <origin rpy="1.5707963705062866 -0 -0" xyz="0 0 0.071"/>
+    <origin rpy="1.5707963705062866 -0 -0" xyz="0 0 0.045"/>
     <parent link="iiwa_link_7"/>
     <child link="base_link_link"/>
     <axis xyz="0 0 1"/>
@@ -546,23 +522,14 @@
       </geometry>
     </collision>
   </link>
-  <!--<gazebo reference="gripper_left_link">
-    <selfCollide>False</selfCollide>
-  </gazebo>
-  <gazebo reference="gripper_right_link">
-    <selfCollide>False</selfCollide>
-  </gazebo>
-  <gazebo reference="base_link_link">
-    <selfCollide>False</selfCollide>
-  </gazebo>-->
   <transmission name="gripper_tran_left">
     <robotNamespace>/iiwa</robotNamespace>
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="gripper_left_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
     </joint>
     <actuator name="gripper_motor_left">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
@@ -570,11 +537,12 @@
     <robotNamespace>/iiwa</robotNamespace>
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="gripper_right_joint">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
     </joint>
     <actuator name="iiwa_motor_right">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
 </robot>
+
