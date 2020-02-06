@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="arm_1_joint_cmd_pos_name" default="/iiwa/arm_j1_position_controller/command" />
-  <arg name="arm_2_joint_cmd_pos_name" default="/iiwa/arm_j2_position_controller/command" />
-  <arg name="arm_3_joint_cmd_pos_name" default="/iiwa/arm_j4_position_controller/command" />
+  <arg name="arm_1_joint_cmd_pos_name" default="/iiwa/effort_j1_position_controller/command" />
+  <arg name="arm_2_joint_cmd_pos_name" default="/iiwa/effort_j2_position_controller/command" />
+  <arg name="arm_3_joint_cmd_pos_name" default="/iiwa/effort_j4_position_controller/command" />
   <arg name="up_down_lower_limit" default="[-2.8]" />
   <arg name="up_down_upper_limit" default="[2.8]" />
   <arg name="left_right_lower_limit" default="[-2.8]" />
@@ -11,7 +11,7 @@
   <arg name="near_far_upper_limit" default="[2.8, 2.8]" />
   <arg name="joint_states_topic" default="/iiwa/joint_states" />
   <arg name="shoulder_frame" default="iiwa_link_0" />
-  <arg name="tcp_frame" default="iiwa_link_ee" />
+  <arg name="tcp_frame" default="base_link_link" />
   <arg name="joint_names" default="['iiwa_joint_1', 'iiwa_joint_2', 'iiwa_joint_3', 'iiwa_joint_4', 'iiwa_joint_5', 'iiwa_joint_6', 'iiwa_joint_7']" />
   <arg name="arm_3_joint_index" default="4" />
   <arg name="follow_joint_trajectory_param" default="/iiwa/effort_trajectory_controller/follow_joint_trajectory" />
@@ -19,7 +19,7 @@
   <node name="pub_kuka_target_position" pkg="target_reaching_nengo" type="pub_kuka_target_position.py" output="screen">
   </node>
 
-  <node name="mapping" pkg="target_reaching_nengo" type="target_reaching_to_kuka_mapping.py" output="screen">
+  <!--<node name="mapping" pkg="target_reaching_nengo" type="target_reaching_to_kuka_mapping.py" output="screen">
     <param name="arm_1_joint_cmd_pos_name" value="$(arg arm_1_joint_cmd_pos_name)" />
     <param name="arm_2_joint_cmd_pos_name" value="$(arg arm_2_joint_cmd_pos_name)" />
     <param name="arm_3_joint_cmd_pos_name" value="$(arg arm_3_joint_cmd_pos_name)" />
@@ -27,7 +27,7 @@
     <rosparam param="joint_names" subst_value="True">$(arg joint_names)</rosparam>
     <param name="follow_joint_trajectory_param" value="$(arg follow_joint_trajectory_param)" />
     <param name="arm_3_joint_index" value="$(arg arm_3_joint_index)" />
-  </node>
+  </node>-->
 
   <node name="Main_TR_CL_nengo_node" pkg="target_reaching_nengo" type="main_TR_CL_node.py" output="screen">
     <param name="arm_1_joint_cmd_pos_name" value="$(arg arm_1_joint_cmd_pos_name)" />
