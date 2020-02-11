@@ -45,8 +45,8 @@ class Base_network():
                         if self.feedback is None:
                             self._joints_pub[1][i].publish(x[i])
                         else:
-                            next_pos = self.feedback.arm.position[i] + self.next_pos_delta_factor * (x[i] - self.feedback.arm.position[i])
-                            next_pos = abs(self.error[0]) * self.next_pos_error_factor * next_pos
+                            delta_factor = self.next_pos_delta_factor * abs(self.error[0]) * self.next_pos_error_factor
+                            next_pos = self.feedback.arm.position[i] + delta_factor * (x[i] - self.feedback.arm.position[i])
                             self._joints_pub[1][i].publish(next_pos)
                 # UP DOWN
                 elif self._joints_pub[0][i] == self.arm_2_joint_cmd_pos_name:
@@ -54,8 +54,8 @@ class Base_network():
                         if self.feedback is None:
                             self._joints_pub[1][i].publish(x[i])
                         else:
-                            next_pos = self.feedback.arm.position[i] + self.next_pos_delta_factor * (x[i] - self.feedback.arm.position[i])
-                            next_pos = abs(self.error[0]) * self.next_pos_error_factor * next_pos
+                            delta_factor = self.next_pos_delta_factor * abs(self.error[0]) * self.next_pos_error_factor
+                            next_pos = self.feedback.arm.position[i] + delta_factor * (x[i] - self.feedback.arm.position[i])
                             self._joints_pub[1][i].publish(next_pos)
                 # LEFT RIGHT
                 elif self._joints_pub[0][i] == self.arm_1_joint_cmd_pos_name:
@@ -63,8 +63,8 @@ class Base_network():
                         if self.feedback is None:
                             self._joints_pub[1][i].publish(x[i])
                         else:
-                            next_pos = self.feedback.arm.position[i] + self.next_pos_delta_factor * (x[i] - self.feedback.arm.position[i])
-                            next_pos = abs(self.error[0]) * self.next_pos_error_factor * next_pos
+                            delta_factor = self.next_pos_delta_factor * abs(self.error[0]) * self.next_pos_error_factor
+                            next_pos = self.feedback.arm.position[i] + delta_factor * (x[i] - self.feedback.arm.position[i])
                             self._joints_pub[1][i].publish(next_pos)
 
     def set_error_near_far(self, x):
