@@ -15,6 +15,7 @@
   <arg name="joint_names" default="['iiwa_joint_1', 'iiwa_joint_2', 'iiwa_joint_3', 'iiwa_joint_4', 'iiwa_joint_5', 'iiwa_joint_6', 'iiwa_joint_7']" />
   <arg name="arm_3_joint_index" default="4" />
   <arg name="follow_joint_trajectory_param" default="/iiwa/effort_trajectory_controller/follow_joint_trajectory" />
+  <arg name="next_pos_delta_factor" default="0.7" />
 
   <node name="pub_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen"/>
 
@@ -33,5 +34,6 @@
     <param name="tcp_frame" value="$(arg tcp_frame)" />
     <rosparam param="joint_names" subst_value="True">$(arg joint_names)</rosparam>
     <param name="arm_3_joint_index" value="$(arg arm_3_joint_index)" />
+    <param name="next_pos_delta_factor" value="$(arg next_pos_delta_factor)" />
   </node>
 </launch>

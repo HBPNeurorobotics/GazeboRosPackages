@@ -31,6 +31,7 @@ class Base_network():
         self.last_used_duplette_index = -1
         self.feedback = None
         self.next_pos_delta_factor = rospy.get_param('~next_pos_delta_factor', 1.)
+        self.next_pos_error_factor = rospy.get_param('~next_pos_error_factor', 0.33)
 
     def publish_topic(self, t, x):
         if self.use_stim:
@@ -45,6 +46,7 @@ class Base_network():
                             self._joints_pub[1][i].publish(x[i])
                         else:
                             next_pos = self.feedback.arm.position[i] + self.next_pos_delta_factor * (x[i] - self.feedback.arm.position[i])
+                            next_pos = abs(self.error[0]) * self.next_pos_error_factor * next_pos
                             self._joints_pub[1][i].publish(next_pos)
                 # UP DOWN
                 elif self._joints_pub[0][i] == self.arm_2_joint_cmd_pos_name:
@@ -53,6 +55,7 @@ class Base_network():
                             self._joints_pub[1][i].publish(x[i])
                         else:
                             next_pos = self.feedback.arm.position[i] + self.next_pos_delta_factor * (x[i] - self.feedback.arm.position[i])
+                            next_pos = abs(self.error[0]) * self.next_pos_error_factor * next_pos
                             self._joints_pub[1][i].publish(next_pos)
                 # LEFT RIGHT
                 elif self._joints_pub[0][i] == self.arm_1_joint_cmd_pos_name:
@@ -61,6 +64,7 @@ class Base_network():
                             self._joints_pub[1][i].publish(x[i])
                         else:
                             next_pos = self.feedback.arm.position[i] + self.next_pos_delta_factor * (x[i] - self.feedback.arm.position[i])
+                            next_pos = abs(self.error[0]) * self.next_pos_error_factor * next_pos
                             self._joints_pub[1][i].publish(next_pos)
 
     def set_error_near_far(self, x):
