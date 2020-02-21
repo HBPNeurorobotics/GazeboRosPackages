@@ -4,7 +4,7 @@ import nengo
 import numpy as np
 
 import rospy
-from std_msgs.msg import Float64
+from std_msgs.msg import Float64, String
 
 class Base_network():
     def __init__(self, voluntary_joints = [],  rhythmic_joints = [], stim = None, use_stim = True, arm_1_joint_cmd_pos_name = '', arm_2_joint_cmd_pos_name = '', arm_3_joint_cmd_pos_name = ''):
@@ -32,51 +32,73 @@ class Base_network():
         self.feedback = None
         self.next_pos_delta_factor = rospy.get_param('~next_pos_delta_factor', 1.)
         self.next_pos_error_factor = rospy.get_param('~next_pos_error_factor', 0.33)
+        self.arm_3_joint_index = rospy.get_param('~arm_3_joint_index', 3)
+        self.max_pos_delta = rospy.get_param('~max_pos_delta', 0.05)
+        self.last_publishing_time = rospy.get_rostime()
+        self.publishing_time_tolerance = rospy.get_param('~publishing_time_tolerance', 0.1)
+        self.base_network_class_data_pub = rospy.Publisher('/base_network_class_data_pub', String, queue_size=1)
 
     def publish_topic(self, t, x):
+        now = rospy.get_rostime()
+        from_last_publishing_until_now = now - self.last_publishing_time
+        if from_last_publishing_until_now.to_sec() < self.publishing_time_tolerance:
+            return
+        self.last_publishing_time = now
         if self.use_stim:
             for i in range(len(self._joints_pub[1])):
                 self._joints_pub[1][i].publish(x[i])
         else:  # FOR TR(=TARGET REACHING)
+            self.to_pub = ''
             for i in range(len(self._joints_pub[1])):
                 # NEAR FAR
                 if self._joints_pub[0][i] == self.arm_3_joint_cmd_pos_name:
                     if abs(self.error[0]) >= 1:
-                        if self.feedback is None:
-                            self._joints_pub[1][i].publish(x[i])
-                        else:
-                            delta_factor = self.next_pos_delta_factor * abs(self.error[0]) * self.next_pos_error_factor
-                            next_pos = self.feedback.arm.position[i] + delta_factor * (x[i] - self.feedback.arm.position[i])
+                        #if self.feedback is None:
+                            #self._joints_pub[1][i].publish(x[i])
+                        #else:
+                            next_pos = self.calculate_next_pos(self.feedback.arm.position[self.arm_3_joint_index - 1], x[i], self.error[0])
+                            self.to_pub += 'nf: curr_pos: {}, cmd: {}, next_pos: {}     '.format(self.feedback.arm.position[self.arm_3_joint_index - 1], x[i], next_pos)
                             self._joints_pub[1][i].publish(next_pos)
                 # UP DOWN
                 elif self._joints_pub[0][i] == self.arm_2_joint_cmd_pos_name:
                     if abs(self.error[1]) >= 1:
-                        if self.feedback is None:
-                            self._joints_pub[1][i].publish(x[i])
-                        else:
-                            delta_factor = self.next_pos_delta_factor * abs(self.error[1]) * self.next_pos_error_factor
-                            next_pos = self.feedback.arm.position[i] + delta_factor * (x[i] - self.feedback.arm.position[i])
+                        #if self.feedback is None:
+                            #self._joints_pub[1][i].publish(x[i])
+                        #else:
+                            next_pos = self.calculate_next_pos(self.feedback.arm.position[1], x[i], self.error[1])
+                            self.to_pub += 'ud: curr_pos: {}, cmd: {}, next_pos: {}   '.format(self.feedback.arm.position[1], x[i], next_pos)
                             self._joints_pub[1][i].publish(next_pos)
                 # LEFT RIGHT
                 elif self._joints_pub[0][i] == self.arm_1_joint_cmd_pos_name:
                     if abs(self.error[2]) >= 1:
-                        if self.feedback is None:
-                            self._joints_pub[1][i].publish(x[i])
-                        else:
-                            delta_factor = self.next_pos_delta_factor * abs(self.error[2]) * self.next_pos_error_factor
-                            next_pos = self.feedback.arm.position[i] + delta_factor * (x[i] - self.feedback.arm.position[i])
+                        #if self.feedback is None:
+                            #self._joints_pub[1][i].publish(x[i])
+                        #else:
+                            next_pos = self.calculate_next_pos(self.feedback.arm.position[0], x[i], self.error[2])
+                            self.to_pub += 'lr: curr_pos: {}, cmd: {}, next_pos: {}     '.format(self.feedback.arm.position[0], x[i], next_pos)
                             self._joints_pub[1][i].publish(next_pos)
+            self.base_network_class_data_pub.publish(self.to_pub)
+
+    def calculate_next_pos(self, curr_pos, cmd, curr_error):
+        pos_diff = cmd - curr_pos
+        delta_sign = np.sign(pos_diff)
+        delta_factor = self.next_pos_delta_factor * abs(curr_error) * self.next_pos_error_factor
+        delta = delta_sign * min(self.max_pos_delta, abs(delta_factor * pos_diff))
+        #next_pos = curr_pos + delta
+        next_pos = curr_pos + delta_sign * self.max_pos_delta
+        self.to_pub += 'calc: curr_pos: {}, delta_sign: {}, delta_factor: {} cmd: {}, next_pos: {}     '.format(curr_pos, delta_sign, delta_factor, cmd, next_pos)
+        return next_pos
 
     def set_error_near_far(self, x):
-        self.error[0] = x
+        self.error[0] = x[0]
         return x
 
     def set_error_up_down(self, x):
-        self.error[1] = x
+        self.error[1] = x[0]
         return x
 
     def set_error_left_right(self, x):
-        self.error[2] = x
+        self.error[2] = x[0]
         return x
 
 

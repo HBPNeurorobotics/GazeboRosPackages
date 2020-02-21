@@ -52,6 +52,7 @@ class Error(object):
         self.target_position_sub = rospy.Subscriber(target_position_topic, PointStamped, self.target_position_callback, queue_size=1)
         self.last_target_position_received_time = None
         self.target_position_secs_tolerance = rospy.get_param('~target_position_secs_tolerance', 0.5)
+        self.map_phi_to_2pi = rospy.get_param('~map_phi_to_2pi', True)
 
     def target_position_callback(self, data):
         self.subject.position = data.point
@@ -140,7 +141,7 @@ class Error(object):
         r       = math.sqrt( math.pow(x, 2) + math.pow(y, 2) + math.pow(z, 2))
         theta   = math.acos(z / r)
         phi     = math.atan2(y/r, x/r)
-        if phi < 0.:
+        if self.map_phi_to_2pi and phi < 0.:
             phi += 2*np.pi
         return [r, theta, phi]
 
@@ -160,8 +161,8 @@ class Error(object):
                 if abs(self.dif[i]) > self.threshold[i][1] * 10: error[i] = 3
                 error[i] = error[i] * (self.dif[i] / abs(self.dif[i]))
 
-            if i == 0 and error[i] > 0:
-                error[i] = error[i] * 3
+            #if i == 0 and error[i] > 0:
+                #error[i] = error[i] * 3
         return error
 
     def calc_error_2(self):
