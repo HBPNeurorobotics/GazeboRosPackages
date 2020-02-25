@@ -30,6 +30,7 @@ class PubKukaTarget:
         gazebo_target_position = None
         try:
             gazebo_target_position = link_states.pose[link_states.name.index(self.gazebo_target_link_name)].position
+            gazebo_target_position.z += 0.15
         except ValueError as e:
             rospy.loginfo(str(e))
         if gazebo_target_position is not None:
