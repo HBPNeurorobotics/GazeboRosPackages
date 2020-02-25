@@ -32,7 +32,7 @@ class PubKukaTarget:
             gazebo_target_position = link_states.pose[link_states.name.index(self.gazebo_target_link_name)].position
         except ValueError as e:
             rospy.loginfo(str(e))
-        if target_position is not None:
+        if gazebo_target_position is not None:
             self.target_position = to_point_stamped(self.gazebo_pos_frame, gazebo_target_position)
 
     def pred_pos_cb(self, data):
