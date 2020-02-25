@@ -14,6 +14,12 @@ def to_point_stamped(frame_id, position):
 class PubKukaTarget:
     def __init__(self):
         self.target_position = None
+
+        self.target_base_x = rospy.get_param('~target_base_x', 1.4)
+        self.target_base_y = rospy.get_param('~target_base_y', -0.4)
+        self.target_base_z = rospy.get_param('~target_base_z', 0.6)
+
+
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
@@ -30,7 +36,9 @@ class PubKukaTarget:
         gazebo_target_position = None
         try:
             gazebo_target_position = link_states.pose[link_states.name.index(self.gazebo_target_link_name)].position
-            gazebo_target_position.z += 0.15
+            gazebo_target_position.x -= self.target_base_x
+            gazebo_target_position.y -= self.target_base_y
+            gazebo_target_position.z -= self.target_base_z
         except ValueError as e:
             rospy.loginfo(str(e))
         if gazebo_target_position is not None:
