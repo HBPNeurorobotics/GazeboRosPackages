@@ -16,7 +16,7 @@ class PubKukaTarget:
         self.target_position = None
 
         self.target_base_x = rospy.get_param('~target_base_x', 1.4)
-        self.target_base_y = rospy.get_param('~target_base_y', -0.4)
+        self.target_base_y = rospy.get_param('~target_base_y', -0.6)
         self.target_base_z = rospy.get_param('~target_base_z', 0.6)
 
 
