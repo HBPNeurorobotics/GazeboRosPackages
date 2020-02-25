@@ -17,8 +17,17 @@
   <arg name="follow_joint_trajectory_param" default="/iiwa/effort_trajectory_controller/follow_joint_trajectory" />
   <arg name="next_pos_delta_factor" default="0.7" />
   <arg name="map_phi_to_2pi" default="False" />
+  <arg name="pred_pos_frame" default="world" />
+  <arg name="pred_pos_topic" default="/pred_pos" />
+  <arg name="target_position_topic" default="/target_position" />
 
   <node name="pub_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen"/>
+
+  <node name="pub_pred_pos_as_target" pkg="target_reaching_nengo" type="pub_kuka_target_position.py" output="screen">
+    <param name="pred_pos_frame" value="$(arg pred_pos_frame)" />
+    <param name="pred_pos_topic" value="$(arg pred_pos_topic)" />
+    <param name="target_position_topic" value="$(arg target_position_topic)" />
+  </node>
 
   <node name="Main_TR_CL_nengo_node" pkg="target_reaching_nengo" type="main_TR_CL_node.py" output="screen">
     <param name="arm_1_joint_cmd_pos_name" value="$(arg arm_1_joint_cmd_pos_name)" />
