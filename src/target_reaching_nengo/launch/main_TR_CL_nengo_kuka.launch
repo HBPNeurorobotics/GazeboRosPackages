@@ -11,7 +11,7 @@
   <arg name="near_far_upper_limit" default="[2.8, 2.8]" />
   <arg name="joint_states_topic" default="/iiwa/joint_states" />
   <arg name="shoulder_frame" default="iiwa_link_0" />
-  <arg name="tcp_frame" default="iiwa_link_6" />
+  <arg name="tcp_frame" default="base_link_link" />
   <arg name="joint_names" default="['iiwa_joint_1', 'iiwa_joint_2', 'iiwa_joint_3', 'iiwa_joint_4', 'iiwa_joint_5', 'iiwa_joint_6', 'iiwa_joint_7']" />
   <arg name="arm_3_joint_index" default="4" />
   <arg name="follow_joint_trajectory_param" default="/iiwa/effort_trajectory_controller/follow_joint_trajectory" />
