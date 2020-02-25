@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Float32MultiArray
 from geometry_msgs.msg import PointStamped
 from std_msgs.msg import Header
+from gazebo_msgs.msg import LinkStates
 
 def to_point_stamped(frame_id, position):
     return PointStamped(header=Header(stamp=rospy.Time.now(),
@@ -14,12 +15,25 @@ class PubKukaTarget:
     def __init__(self):
         self.target_position = None
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
+        self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
-        pred_pos_topic = rospy.get_param('~pred_pos_topic', '/pred_pos')
-        self.pred_pos_sub = rospy.Subscriber(pred_pos_topic, Float64MultiArray, self.pred_pos_cb, queue_size=1)
+        self.gazebo_target_link_name = rospy.get_param('~gazebo_target_link_name', 'ball::ball')
+        self.get_model_state = rospy.Subscriber('/gazebo/link_states', LinkStates, self.gazebo_link_states_cb, queue_size=1)
+
+        #pred_pos_topic = rospy.get_param('~pred_pos_topic', '/pred_pos')
+        #self.pred_pos_sub = rospy.Subscriber(pred_pos_topic, Float32MultiArray, self.pred_pos_cb, queue_size=1)
 
         target_position_topic = rospy.get_param('~target_position_topic', '/target_position')
         self.target_position_pub = rospy.Publisher(target_position_topic, PointStamped, queue_size=1)
+
+    def gazebo_link_states_cb(self, link_states):
+        gazebo_target_position = None
+        try:
+            gazebo_target_position = link_states.pose[link_states.name.index(self.gazebo_target_link_name)].position
+        except ValueError as e:
+            rospy.loginfo(str(e))
+        if target_position is not None:
+            self.target_position = to_point_stamped(self.gazebo_pos_frame, gazebo_target_position)
 
     def pred_pos_cb(self, data):
         if len(data.data) < 3:
