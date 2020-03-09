@@ -13,7 +13,7 @@ class Module2(ExternalModule):
         super(Module2, self).__init__(module_name, steps)
     
     def run_step(self):
-        pass
+        rospy.logwarn("Module 2 called")
 
     def share_module_data(self):
         self.module_data = [0, 0, 5.1]

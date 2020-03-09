@@ -16,7 +16,7 @@ class Module3(ExternalModule):
     #     pass
     
     def run_step(self):
-        pass
+        rospy.logwarn("Module 3 called")
 
     # def shutdown(self):
     #     pass
