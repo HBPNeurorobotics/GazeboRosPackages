@@ -25,6 +25,8 @@ class ManagerModule(object):
         """
         module_name = "manager"
         rospy.init_node(module_name)
+
+        # Set up services for initialization, stepping, and shutdown
         self.initialize_service = rospy.Service('emi/manager_module/initialize', Initialize, self.initialize_call)
         self.run_step_service = rospy.Service('emi/manager_module/run_step', RunStep, self.run_step_call)
         self.shutdown_service = rospy.Service('emi/manager_module/shutdown', Shutdown, self.shutdown_call)
@@ -37,11 +39,14 @@ class ManagerModule(object):
 
         # Set up service for modules to send data at end of their run_step
         self.set_data_service = rospy.Service('emi/manager_module/set_data_service', SetData, self.set_data_function)
+
+        # Initialize synchronization responses
         self.get_data_resp = GetDataResponse(Bool(False), [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0])
         self.set_data_resp = SetDataResponse(Bool(True))
+
+        # Initialize IBA params
         self.max_steps = 1
         self.step = 0
-        self.time = 0.0
         self.module_count = 0
         self.module_steps = {}
         self.set_data_list = []
@@ -52,19 +57,16 @@ class ManagerModule(object):
         Initialize manager module. Set up variable for each service, indicating both the requested amount of steps
         as well as the current step
         """
-        self.max_steps = max(self.module_steps.itervalues())[0]
-        self.max_steps = int(2**math.ceil(math.log(self.max_steps, 2)))
+        # Iterate over registered modules. Round every key up to the closest power of 2
         for key in self.module_steps.iterkeys():
             self.module_steps[key][1] = self.max_steps / int(2**math.ceil(math.log(float(self.module_steps[key][0]), 2)))
-        self.initialize()
+
+        self.max_steps = max(self.module_steps.itervalues())[1]
+
         return InitializeResponse()
 
-    def initialize(self):
-        pass
-
     def run_step_call(self, req):
-        """Run this module at every step"""
-        self.time += 1.0
+        """Single CLE cycle. Execute the manager's run_step method max_step times"""
         for step in range(1, self.max_steps + 1):
             self.run_step(step)
         return RunStepResponse()
@@ -73,7 +75,7 @@ class ManagerModule(object):
         """
         At every run_step, perform data synchronization between modules.
         Wait for data from any modules that have finished their step and send out data to any module that will now
-        start their step. See get_data_function and set_data_function for details
+        start their step. See get_data_function and set_data_function for details about synchronization
         """
         self.get_data_list = []
         self.set_data_list = []
@@ -122,7 +124,7 @@ class ManagerModule(object):
 
     def get_data_function(self, req):
         """
-        Service Callback used by modules to request data from the manager. Will keep module locked until all data
+        Service Callback used by modules to send data from the manager. Will keep module locked until all data
         from previous run_steps has been collected
         """
         self.module_steps[req.id][4] = req.step * self.module_steps[req.id][1]
