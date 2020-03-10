@@ -4,7 +4,7 @@
 __author__ = 'Omer Yilmaz'
 
 import rospy
-from iba_manager import ExternalModule
+from external_module_interface.external_module import ExternalModule
 
 
 class Module1(ExternalModule):
@@ -23,6 +23,7 @@ class Module1(ExternalModule):
 
     def share_module_data(self):
         self.module_data = [1, 2.50, -3.7]
+
 
 if __name__ == "__main__":
     m = Module1(module_name='module1', steps=4)

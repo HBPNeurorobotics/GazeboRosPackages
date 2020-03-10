@@ -18,6 +18,7 @@ class Module2(ExternalModule):
     def share_module_data(self):
         self.module_data = [0, 0, 5.1]
 
+
 if __name__ == "__main__":
     m = Module2(module_name='module_cerebellum', steps=8)
     rospy.spin()

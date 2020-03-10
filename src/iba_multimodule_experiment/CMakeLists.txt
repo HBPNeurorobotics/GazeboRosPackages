@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  iba_manager
 )
 
 ## System dependencies are found with CMake's conventions

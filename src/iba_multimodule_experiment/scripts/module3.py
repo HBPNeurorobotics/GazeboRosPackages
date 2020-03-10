@@ -24,6 +24,7 @@ class Module3(ExternalModule):
     def share_module_data(self):
         self.module_data = []
 
+
 if __name__ == "__main__":
     m = Module3(module_name='module3', steps=16)
     rospy.spin()

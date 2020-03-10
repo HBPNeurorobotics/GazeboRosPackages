@@ -12,10 +12,8 @@ __author__ = 'Omer Yilmaz'
 import time
 import rospy
 from std_msgs.msg import String
-from cle_ros_msgs.srv import Initialize, RunStep, Shutdown, \
-                        InitializeResponse, RunStepResponse, ShutdownResponse
-from iba_multimodule_experiment.srv import Registration, RegistrationRequest, \
-                        SetData, \
+from iba_manager.srv import Initialize, InitializeResponse, RunStep, RunStepResponse, Shutdown, ShutdownResponse, \
+                        Registration, RegistrationRequest, SetData, \
                         GetData, GetDataRequest, GetDataResponse
 
 
