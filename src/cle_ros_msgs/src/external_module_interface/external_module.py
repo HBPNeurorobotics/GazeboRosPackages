@@ -24,7 +24,7 @@ class ExternalModule(object):
     def __init__(self, module_name=None, steps=1):
         self.module_name = module_name
         rospy.init_node(module_name)
-        print(self.module_name)
+        rospy.loginfo("Starting module " + self.module_name)
         self.initialize_service = rospy.Service('emi/' + self.module_name + '_module/initialize', Initialize, self.initialize_call)
         self.run_step_service = rospy.Service('emi/' + self.module_name + '_module/run_step', RunStep, self.run_step_call)
         self.shutdown_service = rospy.Service('emi/' + self.module_name + '_module/shutdown', Shutdown, self.shutdown_call)
@@ -49,7 +49,7 @@ class ExternalModule(object):
 
     def initialize_call(self, req):
         self.initialize()
-        return InitializeResponse()
+        return InitializeResponse(status=True)
 
     def initialize(self):
         pass
@@ -60,7 +60,6 @@ class ExternalModule(object):
             while True:
                 self.database_resp = self.database_proxy(self.module_id, self.step-1)
                 if self.database_resp.lock.data == False:
-                    # print "Module " + str(self.module_id) + " time: " + "{0:.2f}".format(self._time + float(self.step-1)/self.n_steps) + " step: " + str(self.step) + " started!"
                     break
                 time.sleep(0.001)
 
@@ -70,10 +69,9 @@ class ExternalModule(object):
             while True:
                 self.update_database_resp = self.update_database_proxy(self.module_id, self.step, self.module_data)
                 if self.update_database_resp.lock.data == False:
-                    # print "Module " + str(self.module_id) + " time: " + "{0:.2f}".format(self._time + float(self.step)/self.n_steps) + " step: " + str(self.step) + " ended!"
                     break
                 time.sleep(0.001)
-        return RunStepResponse()
+        return RunStepResponse(status=True)
 
     def run_step(self):
         pass
@@ -82,7 +80,7 @@ class ExternalModule(object):
         self.shutdown()
         self.initialize_service.shutdown()
         self.run_step_service.shutdown()
-        return ShutdownResponse()
+        return ShutdownResponse(status=True)
 
     def shutdown(self):
         pass
