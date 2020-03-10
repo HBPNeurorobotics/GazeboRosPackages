@@ -4,7 +4,7 @@
 __author__ = 'Omer Yilmaz'
 
 import rospy
-from external_module_interface.external_module import ExternalModule
+from iba_manager import ExternalModule
 
 
 class Module1(ExternalModule):

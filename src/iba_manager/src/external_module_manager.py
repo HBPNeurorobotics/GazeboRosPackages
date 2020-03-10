@@ -7,14 +7,11 @@ __author__ = 'Omer Yilmaz'
 
 import math
 import time
-import numpy as np
 import rospy
-from std_msgs.msg import String, Bool
-from cle_ros_msgs.srv import Initialize, RunStep, Shutdown, \
-                        InitializeResponse, RunStepResponse, ShutdownResponse
-from iba_multimodule_experiment.srv import Registration, RegistrationRequest, RegistrationResponse, \
-                        GetData, GetDataRequest, GetDataResponse, \
-                        SetData, SetDataRequest, SetDataResponse
+from std_msgs.msg import Bool
+from iba_manager.srv import Initialize, InitializeResponse, \
+    RunStep, RunStepResponse, Shutdown, ShutdownResponse, Registration, \
+    GetData, GetDataResponse, SetData, SetDataResponse
 
 
 class ManagerModule(object):

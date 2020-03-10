@@ -14,14 +14,22 @@ import rospy
 from std_msgs.msg import String
 from cle_ros_msgs.srv import Initialize, RunStep, Shutdown, \
                         InitializeResponse, RunStepResponse, ShutdownResponse
-from iba_multimodule_experiment.srv import Registration, RegistrationRequest, RegistrationResponse, \
-                        SetData, SetDataRequest, SetDataResponse, \
+from iba_multimodule_experiment.srv import Registration, RegistrationRequest, \
+                        SetData, \
                         GetData, GetDataRequest, GetDataResponse
 
 
 class ExternalModule(object):
+    """
+    IBA Module class. Registers itself with the ExternalModuleManager at startup and manages data sending and receiving.
+    At every step, this class will first receive synchronized data from ExternalModuleManager. Secondly, the user code,
+    available via the run_step method of a derived class, will be executed. Lastly, user data will be synchronized with
+    the ExternalModuleManager. Other methods a user can override are initialize, share_module_data, and shutdown.
+    """
 
     def __init__(self, module_name=None, steps=1):
+        """Sets up services required for communication with the CLE as well as the ExternalModuleManager"""
+
         self.module_name = module_name
         rospy.init_node(module_name)
         rospy.loginfo("Starting module " + self.module_name)
@@ -48,13 +56,19 @@ class ExternalModule(object):
         self.update_database_proxy = rospy.ServiceProxy('emi/manager_module/set_data_service', SetData)
 
     def initialize_call(self, req):
+        """Calls user-defined initialize method"""
         self.initialize()
         return InitializeResponse(status=True)
 
     def initialize(self):
+        """Initialize method. Run at startup. Can be overriden by the user"""
         pass
 
     def run_step_call(self, req):
+        """
+        Executes n_steps during a single CLE cycle. Will first retrieve synchronized data
+        from the ExternalModuleManager, then execute user code, and lastly send data back to the Manager
+        """
         self._time += 1.0
         for self.step in range(1, self.n_steps + 1):
             while True:
@@ -74,21 +88,26 @@ class ExternalModule(object):
         return RunStepResponse(status=True)
 
     def run_step(self):
+        """Step method. Runs every iteration step. Can be overriden by user"""
         pass
 
     def shutdown_call(self, req):
+        """Calls user-defined shutdown method"""
         self.shutdown()
         self.initialize_service.shutdown()
         self.run_step_service.shutdown()
         return ShutdownResponse(status=True)
 
     def shutdown(self):
+        """Shutdown method. Can be overriden by user"""
         pass
 
     def share_module_data_caller(self):
+        """Calls user-defined synchronization method"""
         self.module_data = []
         self.share_module_data()
         self.module_data.insert(0, self.step)
 
     def share_module_data(self):
+        """Data sending method. Can be used to customize data sending outside of the run_step method if required"""
         pass
