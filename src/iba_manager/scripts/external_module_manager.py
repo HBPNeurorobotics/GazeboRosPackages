@@ -104,7 +104,7 @@ class ManagerModule(object):
         """Single CLE cycle. Execute the manager's run_step method max_step times"""
         for step in range(0, self._state.steps_per_cle_cycle):
             self.run_step(step)
-        return RunStepResponse()
+        return RunStepResponse(status=True)
 
     def run_step(self, step):
         """
