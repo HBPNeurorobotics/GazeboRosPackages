@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-""" """
+"""
+IBA Module example.
+This module will run 16 times during every CLE loop and will output a log message at every iteration.
+"""
 
 __author__ = 'Omer Yilmaz'
 
