@@ -1,5 +1,9 @@
+# ID of module
 int16 id
+# Current IBA step
 int16 step
+# Module data
 float64[] m
 ---
+# Module Lock state
 std_msgs/Bool lock

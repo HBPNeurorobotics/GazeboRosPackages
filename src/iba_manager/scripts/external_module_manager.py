@@ -130,11 +130,11 @@ class ManagerModule(object):
         # Wait for all modules to start. This is done via the modules calling get_data_callback.
         # The callback will remove the ID of all started modules from the array. Once the array is empty,
         # all modules are running
-        while len(self._starting_modules) > 0:
+        while self._starting_modules:
             time.sleep(0.001)
 
         # Wait for all modules to finish. This is done via the modules calling set_data_callback
-        while len(finishing_modules) > 0:
+        while finishing_modules:
             with self._future_data_lock:
                 for module_id in reversed(finishing_modules):
                     if module_id in self._future_data:
@@ -153,7 +153,7 @@ class ManagerModule(object):
         self._registration_service.shutdown()
         self._set_data_service.shutdown()
         self._get_data_service.shutdown()
-        return ShutdownResponse()
+        return ShutdownResponse(status=True)
 
     def get_data_callback(self, req):
         """
@@ -161,8 +161,7 @@ class ManagerModule(object):
         from previous run_steps has been collected
         """
         with self._starting_modules_lock:
-            # Should this module start this step?
-            # If yes, run_step will have added its ID to the self.starting_modules array
+            # Check whether the requesting module can start this step
             if req.id not in self._starting_modules:
                 # ID not in starting_modules, keep this module from executing
                 self._synced_data.lock.data = True
