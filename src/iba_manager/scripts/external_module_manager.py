@@ -50,6 +50,7 @@ class ManagerModule(object):
 
         # Set up service for modules to register themselves with this manager
         self._registration_service = rospy.Service('emi/manager_module/registration_service', Registration, self.registration_callback)
+        self._registration_lock = Lock()
 
         # Set up service for modules to retrieve synchronized data at start of their run_step
         self._get_data_service = rospy.Service('emi/manager_module/get_data_service', GetData, self.get_data_callback)
@@ -72,13 +73,14 @@ class ManagerModule(object):
 
     def registration_callback(self, req):
         """Set up state variables for every module"""
-        self._state.num_modules += 1
+        with self._registration_lock:
+            self._state.num_modules += 1
 
-        # Round module_steps up to the nearest power of two
-        module_steps = self._state.round_step_up(req.steps)
-        self._state.module_steps_per_cle_loop.append(module_steps)
+            # Round module_steps up to the nearest power of two
+            module_steps = self._state.round_step_up(req.steps)
+            self._state.module_steps_per_cle_loop.append(module_steps)
 
-        return self._state.num_modules-1
+            return self._state.num_modules-1
 
     def initialize_callback(self, req):
         """
