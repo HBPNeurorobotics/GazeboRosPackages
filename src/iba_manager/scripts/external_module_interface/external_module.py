@@ -11,10 +11,29 @@ __author__ = 'Omer Yilmaz'
 
 import time
 import rospy
+import math
+from threading import Lock
 from std_msgs.msg import String
 from iba_manager.srv import Initialize, InitializeResponse, RunStep, RunStepResponse, Shutdown, ShutdownResponse, \
                         Registration, RegistrationRequest, SetData, \
                         GetData, GetDataRequest, GetDataResponse
+
+
+class ModuleState(object):
+    def __init__(self, requested_steps=1):
+        self.requested_steps = requested_steps
+        self.steps_per_cle_cycle = self.round_step_up(requested_steps)
+
+        self.cur_step = 0
+        self.is_locked = True
+
+    def round_step_up(self, step):
+        cur_step = 1
+        while cur_step < step:
+            cur_step *= 2
+
+        return cur_step
+
 
 
 class ExternalModule(object):
@@ -27,31 +46,37 @@ class ExternalModule(object):
 
     def __init__(self, module_name=None, steps=1):
         """Sets up services required for communication with the CLE as well as the ExternalModuleManager"""
-
         self.module_name = module_name
-        rospy.init_node(module_name)
-        rospy.loginfo("Starting module " + self.module_name)
-        self.initialize_service = rospy.Service('emi/' + self.module_name + '_module/initialize', Initialize, self.initialize_call)
-        self.run_step_service = rospy.Service('emi/' + self.module_name + '_module/run_step', RunStep, self.run_step_call)
-        self.shutdown_service = rospy.Service('emi/' + self.module_name + '_module/shutdown', Shutdown, self.shutdown_call)
-        self.module_data = []
-        self.module_id = 0
-        self.n_steps = steps
-        self.step = 0
-        self._time = 0.0
-        self.database_req = GetDataRequest()
-        self.database_resp = GetDataResponse()
+        self._state = ModuleState(steps)
 
-        rospy.wait_for_service('emi/manager_module/registration_service')
-        self.registration_proxy = rospy.ServiceProxy('emi/manager_module/registration_service', Registration)
-        resp = self.registration_proxy(RegistrationRequest(String(self.module_name), self.n_steps))
+        # Start ROS Node
+        rospy.init_node(module_name)
+
+        # Set up initialization, step, and shutdown services
+        self._initialize_service = rospy.Service('emi/' + self.module_name + '_module/initialize', Initialize, self.initialize_call)
+        self._run_step_service = rospy.Service('emi/' + self.module_name + '_module/run_step', RunStep, self.run_step_call)
+        self._shutdown_service = rospy.Service('emi/' + self.module_name + '_module/shutdown', Shutdown, self.shutdown_call)
+
+        # Initialize synchronization variables
+        self.module_data = []
+        self._database_req = GetDataRequest()
+        self._database_resp = GetDataResponse()
+
+        self.run_step_lock = Lock()
+
+        # Register module with ExternalModuleManager
+        module_manager_service = 'emi/manager_module/registration_service'
+        rospy.wait_for_service(module_manager_service)
+        registration_proxy = rospy.ServiceProxy(module_manager_service, Registration)
+        resp = registration_proxy(RegistrationRequest(String(self.module_name), self._state.steps_per_cle_cycle))
         self.module_id = resp.id
 
+        # Set up data synchronization services
         rospy.wait_for_service('emi/manager_module/get_data_service')
-        self.database_proxy = rospy.ServiceProxy('emi/manager_module/get_data_service', GetData)
+        self._manager_get_data_proxy = rospy.ServiceProxy('emi/manager_module/get_data_service', GetData)
 
         rospy.wait_for_service('emi/manager_module/set_data_service')
-        self.update_database_proxy = rospy.ServiceProxy('emi/manager_module/set_data_service', SetData)
+        self._manager_set_data_proxy = rospy.ServiceProxy('emi/manager_module/set_data_service', SetData)
 
     def initialize_call(self, req):
         """Calls user-defined initialize method"""
@@ -59,7 +84,7 @@ class ExternalModule(object):
         return InitializeResponse(status=True)
 
     def initialize(self):
-        """Initialize method. Run at startup. Can be overriden by the user"""
+        """Initialize method. Run at startup. Can be overridden by the user"""
         pass
 
     def run_step_call(self, req):
@@ -67,44 +92,45 @@ class ExternalModule(object):
         Executes n_steps during a single CLE cycle. Will first retrieve synchronized data
         from the ExternalModuleManager, then execute user code, and lastly send data back to the Manager
         """
-        self._time += 1.0
-        for self.step in range(1, self.n_steps + 1):
-            while True:
-                self.database_resp = self.database_proxy(self.module_id, self.step-1)
-                if self.database_resp.lock.data == False:
-                    break
+        for self._state.cur_step in range(0, self._state.steps_per_cle_cycle):
+            # Retrieve synchronized data from the ExternalModuleManager
+            manager_sync_data_resp = self._manager_get_data_proxy.call(self.module_id, self._state.cur_step)
+            while manager_sync_data_resp.lock.data is True:
+                # ExternalModuleManager will keep module locked until all modules have finished the previous run_step.
+                # Once all data is available, the manager will set the lock flag to False. Continue polling manager
+                # until that happens
                 time.sleep(0.001)
+                manager_sync_data_resp = self._manager_get_data_proxy.call(self.module_id, self._state.cur_step)
 
+            # Call user code
             self.run_step()
-            self.share_module_data_caller()
+            self.share_module_data_call()
 
-            while True:
-                self.update_database_resp = self.update_database_proxy(self.module_id, self.step, self.module_data)
-                if self.update_database_resp.lock.data == False:
-                    break
-                time.sleep(0.001)
+            # Send module data to ExternalModuleManager
+            self._manager_set_data_proxy(self.module_id, self._state.cur_step + 1, self.module_data)
+
         return RunStepResponse(status=True)
 
     def run_step(self):
-        """Step method. Runs every iteration step. Can be overriden by user"""
+        """Step method. Runs every iteration step. Can be overridden by user"""
         pass
 
     def shutdown_call(self, req):
         """Calls user-defined shutdown method"""
         self.shutdown()
-        self.initialize_service.shutdown()
-        self.run_step_service.shutdown()
+
+        self._initialize_service.shutdown()
+        self._run_step_service.shutdown()
+
         return ShutdownResponse(status=True)
 
     def shutdown(self):
-        """Shutdown method. Can be overriden by user"""
+        """Shutdown method. Can be overridden by user"""
         pass
 
-    def share_module_data_caller(self):
-        """Calls user-defined synchronization method"""
-        self.module_data = []
+    def share_module_data_call(self):
+        """Calls user-defined synchronization method and prepares module data for sending to the manager"""
         self.share_module_data()
-        self.module_data.insert(0, self.step)
 
     def share_module_data(self):
         """Data sending method. Can be used to customize data sending outside of the run_step method if required"""

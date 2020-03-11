@@ -9,9 +9,26 @@ import math
 import time
 import rospy
 from std_msgs.msg import Bool
+from external_module_interface.external_module import ModuleState
 from iba_manager.srv import Initialize, InitializeResponse, \
     RunStep, RunStepResponse, Shutdown, ShutdownResponse, Registration, \
     GetData, GetDataResponse, SetData, SetDataResponse
+from threading import Lock
+import copy
+
+
+class ModuleManagerState(ModuleState):
+    def __init__(self):
+        super(ModuleManagerState, self).__init__(1)
+
+        # Number of registered modules
+        self.num_modules = 0
+
+        # Array with number of steps each module will execute per CLE timestep
+        self.module_steps_per_cle_loop = []
+
+        # Array with module step size, e.g. at which ModuleManager steps should a module be allowed to run
+        self.module_step_size = []
 
 
 class ManagerModule(object):
@@ -27,47 +44,63 @@ class ManagerModule(object):
         rospy.init_node(module_name)
 
         # Set up services for initialization, stepping, and shutdown
-        self.initialize_service = rospy.Service('emi/manager_module/initialize', Initialize, self.initialize_call)
-        self.run_step_service = rospy.Service('emi/manager_module/run_step', RunStep, self.run_step_call)
-        self.shutdown_service = rospy.Service('emi/manager_module/shutdown', Shutdown, self.shutdown_call)
+        self._initialize_service = rospy.Service('emi/manager_module/initialize', Initialize, self.initialize_callback)
+        self._run_step_service = rospy.Service('emi/manager_module/run_step', RunStep, self.run_step_callback)
+        self._shutdown_service = rospy.Service('emi/manager_module/shutdown', Shutdown, self.shutdown_callback)
 
         # Set up service for modules to register themselves with this manager
-        self.registration_service = rospy.Service('emi/manager_module/registration_service', Registration, self.registration_function)
+        self._registration_service = rospy.Service('emi/manager_module/registration_service', Registration, self.registration_callback)
 
         # Set up service for modules to retrieve synchronized data at start of their run_step
-        self.get_data_service = rospy.Service('emi/manager_module/get_data_service', GetData, self.get_data_function)
+        self._get_data_service = rospy.Service('emi/manager_module/get_data_service', GetData, self.get_data_callback)
 
         # Set up service for modules to send data at end of their run_step
-        self.set_data_service = rospy.Service('emi/manager_module/set_data_service', SetData, self.set_data_function)
+        self._set_data_service = rospy.Service('emi/manager_module/set_data_service', SetData, self.set_data_callback)
 
-        # Initialize synchronization responses
-        self.get_data_resp = GetDataResponse(Bool(False), [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0])
-        self.set_data_resp = SetDataResponse(Bool(True))
+        # Initialize synchronization data
+        self._synced_data = GetDataResponse(lock=Bool(False))
+
+        self._future_data_lock = Lock()
+        self._future_data = {}           # Dict that will be filled with data from completed module run_steps, mapped to the corresponding module ID
 
         # Initialize IBA params
-        self.max_steps = 1
-        self.step = 0
-        self.module_count = 0
-        self.module_steps = {}
-        self.set_data_list = []
-        self.get_data_list = []
+        self._state = ModuleManagerState()
 
-    def initialize_call(self, req):
+        # Initialize starting_modules array
+        self._starting_modules_lock = Lock()
+        self._starting_modules = []      # Array with IDs of all modules that should start at this step
+
+    def registration_callback(self, req):
+        """Set up state variables for every module"""
+        self._state.num_modules += 1
+
+        # Round module_steps up to the nearest power of two
+        module_steps = self._state.round_step_up(req.steps)
+        self._state.module_steps_per_cle_loop.append(module_steps)
+
+        return self._state.num_modules-1
+
+    def initialize_callback(self, req):
         """
         Initialize manager module. Set up variable for each service, indicating both the requested amount of steps
         as well as the current step
         """
-        # Iterate over registered modules. Round every key up to the closest power of 2
-        for key in self.module_steps.iterkeys():
-            self.module_steps[key][1] = self.max_steps / int(2**math.ceil(math.log(float(self.module_steps[key][0]), 2)))
+        # No more registration should be possible once the initialization method has been called
+        self._registration_service.shutdown()
 
-        self.max_steps = max(self.module_steps.itervalues())[1]
+        # Set number of steps the ModuleManager should execute per CLE cycle. As the manager synchronizes data
+        # between the modules, it must run at the maximum frequency set by the registered modules.
+        self._state.steps_per_cle_cycle = max(self._state.module_steps_per_cle_loop)
+
+        # Set step size of all modules
+        self._state.module_step_size = [self._state.steps_per_cle_cycle/module_steps
+                                        for module_steps in self._state.module_steps_per_cle_loop]
 
         return InitializeResponse()
 
-    def run_step_call(self, req):
+    def run_step_callback(self, req):
         """Single CLE cycle. Execute the manager's run_step method max_step times"""
-        for step in range(1, self.max_steps + 1):
+        for step in range(0, self._state.steps_per_cle_cycle):
             self.run_step(step)
         return RunStepResponse()
 
@@ -77,91 +110,75 @@ class ManagerModule(object):
         Wait for data from any modules that have finished their step and send out data to any module that will now
         start their step. See get_data_function and set_data_function for details about synchronization
         """
-        self.get_data_list = []
-        self.set_data_list = []
+        self._state.cur_step = step
 
-        # Set up array to track which modules should receive data and which modules will send data
-        for k, v in self.module_steps.items():
-            # Wait for modules that will complete to send their data
-            self.module_steps[k][2] = (step-1) % self.module_steps[k][1]
-            if self.module_steps[k][2] == 0:
-                self.get_data_list.append(k)
+        # Setup which modules should start this step
+        with self._starting_modules_lock:
+            self._starting_modules = []
+            for module_id in range(0, self._state.num_modules):
+                if step % self._state.module_step_size[module_id] == 0:
+                    self._starting_modules.append(module_id)
 
-            # Wait for modules that will start to request data
-            self.module_steps[k][3] = step % self.module_steps[k][1]
-            if self.module_steps[k][3] == 0:
-                self.set_data_list.append(k)
+        # Setup which modules should finish before next step
+        finishing_modules = []
+        for module_id in range(0, self._state.num_modules):
+            if (step+1) % self._state.module_step_size[module_id] == 0:
+                finishing_modules.append(module_id)
 
-        self.step = step
-        while True:
-            if not self.get_data_list:
-                time.sleep(0.001)
-                break
+        # Wait for all modules to start. This is done via the modules calling get_data_callback.
+        # The callback will remove the ID of all started modules from the array. Once the array is empty,
+        # all modules are running
+        while len(self._starting_modules) > 0:
+            time.sleep(0.001)
 
-        while True:
-            if not self.set_data_list:
-                time.sleep(0.001)
-                break
+        # Wait for all modules to finish. This is done via the modules calling set_data_callback
+        while len(finishing_modules) > 0:
+            with self._future_data_lock:
+                for module_id in reversed(finishing_modules):
+                    if module_id in self._future_data:
+                        # Move any data that should become available next step from future_data to synced_data
+                        self._synced_data.__setattr__("m" + str(module_id), self._future_data[module_id])
 
-    def shutdown_call(self, req):
+                        self._future_data.pop(module_id)
+                        finishing_modules.remove(module_id)
+
+            time.sleep(0.001)
+
+    def shutdown_callback(self, req):
         """Shutdown ServiceProxies"""
-        self.shutdown()
-        self.initialize_service.shutdown()
-        self.run_step_service.shutdown()
-        self.registration_service.shutdown()
-        self.set_data_service.shutdown()
-        self.get_data_service.shutdown()
+        self._initialize_service.shutdown()
+        self._run_step_service.shutdown()
+        self._registration_service.shutdown()
+        self._set_data_service.shutdown()
+        self._get_data_service.shutdown()
         return ShutdownResponse()
 
-    def shutdown(self):
-        pass
-
-    def registration_function(self, req):
-        """Set up state variables for every module"""
-        self.module_count = self.module_count + 1
-        self.module_steps[self.module_count] = [req.steps, 1, -1, -1, 0]
-        return self.module_count
-
-    def get_data_function(self, req):
+    def get_data_callback(self, req):
         """
-        Service Callback used by modules to send data from the manager. Will keep module locked until all data
+        Service Callback used by modules to collect data from the manager. Will keep module locked until all data
         from previous run_steps has been collected
         """
-        self.module_steps[req.id][4] = req.step * self.module_steps[req.id][1]
-        if req.id in self.get_data_list and self.module_steps[req.id][4]+1 == self.step:
-            self.get_data_list.remove(req.id)
-            self.get_data_resp.lock.data = False
+        with self._starting_modules_lock:
+            # Should this module start this step?
+            # If yes, run_step will have added its ID to the self.starting_modules array
+            if req.id not in self._starting_modules:
+                # ID not in starting_modules, keep this module from executing
+                self._synced_data.lock.data = True
+            else:
+                # ID in starting_modules, allow module execution
+                self._starting_modules.remove(req.id)
+                self._synced_data.lock.data = False
 
-            if self.step == self.max_steps and all([getattr(self.get_data_resp, "m" + str(i))[0] == self.module_steps[i][0] for i in range(1, self.module_count+1)]):
-                for i in range(1, self.module_count+1):
-                    getattr(self.get_data_resp, "m" + str(i))[0] = 0
-                self.get_data_resp.lock.data = False
+            return copy.deepcopy(self._synced_data)
 
-        else:
-            self.get_data_resp.lock.data = True
-
-        return self.get_data_resp
-
-    def set_data_function(self, req):
+    def set_data_callback(self, req):
         """
-        Service Callback used by modules to send data to module. Module will wait to process data until the data is
-        requested by other modules. During this time, the module will remain in a locked state, preventing further
-        execution
+        Service Callback used by modules to send data to the ModuleManager
         """
-        self.module_steps[req.id][4] = req.step * self.module_steps[req.id][1]
-        if req.id in self.set_data_list and self.module_steps[req.id][4] == self.step and not self.get_data_list:
-            self.set_data_list.remove(req.id)
-            self.set_data_resp.lock.data = False
+        with self._future_data_lock:
+            self._future_data[req.id] = req.m
 
-            for i in range(1, self.module_count+1):
-                if req.id == i:
-                    setattr(self.get_data_resp, "m" + str(i), list(req.m))
-                    break
-
-        else:
-            self.set_data_resp.lock.data = True
-
-        return self.set_data_resp
+        return SetDataResponse(lock=Bool(False))
 
 
 if __name__ == "__main__":
