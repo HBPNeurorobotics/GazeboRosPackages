@@ -35,7 +35,6 @@ class ModuleState(object):
         return cur_step
 
 
-
 class ExternalModule(object):
     """
     IBA Module class. Registers itself with the ExternalModuleManager at startup and manages data sending and receiving.
@@ -53,6 +52,10 @@ class ExternalModule(object):
         rospy.init_node(module_name)
 
         # Set up initialization, step, and shutdown services
+        # TODO: Change the service naming convention. Currently, it is using only the module_name, which will
+        #  cause problems if multiple modules have the same name or the name of the manager. If errors are encountered
+        #  with the naming convention, consider changing it. For that, also take into account the CLE ExternalManager
+        #  and ExternalModuleManager class to look for the module services at the new location
         self._initialize_service = rospy.Service('emi/' + self.module_name + '_module/initialize', Initialize, self.initialize_call)
         self._run_step_service = rospy.Service('emi/' + self.module_name + '_module/run_step', RunStep, self.run_step_call)
         self._shutdown_service = rospy.Service('emi/' + self.module_name + '_module/shutdown', Shutdown, self.shutdown_call)
