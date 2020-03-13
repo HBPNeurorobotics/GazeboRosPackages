@@ -28,6 +28,9 @@
 #include <gazebo/plugins/CameraPlugin.hh>
 
 #include <gazebo_plugins/gazebo_ros_camera_utils.h>
+#include <ros/ros.h>
+
+#include <gazebo_msgs/GetCameraImage.h>
 
 namespace gazebo
 {
@@ -38,7 +41,7 @@ namespace gazebo
     public: GazeboRosCamera();
 
     /// \brief Destructor
-    public: ~GazeboRosCamera();
+    public: virtual ~GazeboRosCamera();
 
     /// \brief Load the plugin
     /// \param take in SDF root element
@@ -48,6 +51,11 @@ namespace gazebo
     protected: virtual void OnNewFrame(const unsigned char *_image,
                    unsigned int _width, unsigned int _height,
                    unsigned int _depth, const std::string &_format);
+
+    protected: ros::NodeHandle _nh;
+    protected: ros::ServiceServer _service;
+
+    protected: bool getNewCameraImage(const gazebo_msgs::GetCameraImageRequest &req, gazebo_msgs::GetCameraImageResponse &res);
   };
 }
 #endif

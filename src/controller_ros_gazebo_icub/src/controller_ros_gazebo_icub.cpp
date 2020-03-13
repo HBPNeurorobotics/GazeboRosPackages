@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
@@ -19,6 +20,9 @@ namespace gazebo
   {
   public:
     void callbackpos(const std_msgs::Float64::ConstPtr &msg, const std::string &jointId) {
+      // get mutex to implement thread-safe reset of controller and avoid async, contradictory pos/vel controller setting
+      std::lock_guard<std::mutex> lock(this->mutex);
+
       // control method
       string jointNameCtrl1 = jointId;
       string jointNameCtrl2 = jointId;
@@ -31,6 +35,7 @@ namespace gazebo
       std::map<std::string, double> positions = this->jointControl->GetPositions();
       std::map<std::string, double> velocities = this->jointControl->GetVelocities();
       std::map<std::string, double>::iterator findIt = velocities.find(jointNameCtrl1);
+
       if (findIt != velocities.end())
       {
         cout << "CHANGED CONTROL POLICY JOINT " << jointId << endl;
@@ -89,6 +94,9 @@ namespace gazebo
     }
 
     void callbackvel(const std_msgs::Float64::ConstPtr &msg, const std::string &jointId) {
+      // get mutex to implement thread-safe reset of controller and avoid async, contradictory pos/vel controller setting
+      std::lock_guard<std::mutex> lock(this->mutex);
+
       // control method
       string jointNameCtrl1 = jointId;
       string jointNameCtrl2 = jointId;
@@ -101,6 +109,7 @@ namespace gazebo
       std::map<std::string, double> positions = this->jointControl->GetPositions();
       std::map<std::string, double> velocities = this->jointControl->GetVelocities();
       std::map<std::string, double>::iterator findIt = positions.find(jointNameCtrl1);
+
       if (findIt != positions.end())
       {
         cout << "CHANGED CONTROL POLICY JOINT " << jointId << endl;
@@ -286,6 +295,7 @@ namespace gazebo
 
     // Pointer to the model
   private:
+    std::mutex mutex;
     physics::ModelPtr model;
     event::ConnectionPtr updateConnection;
     gazebo::physics::JointControllerPtr jointControl;

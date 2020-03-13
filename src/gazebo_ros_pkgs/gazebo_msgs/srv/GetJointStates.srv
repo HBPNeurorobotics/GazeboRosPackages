@@ -1,0 +1,7 @@
+string joint_name                    # name of joint
+---
+# joint state
+float64[] value                      # target value of joint
+# service return status
+bool success                         # return true if get successful
+string status_message                # comments if available

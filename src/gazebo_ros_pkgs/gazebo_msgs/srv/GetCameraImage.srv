@@ -1,0 +1,4 @@
+---
+sensor_msgs/Image image_data         # camera image
+bool success                         # return true if get successful
+string status_message                # comments if available

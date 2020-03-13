@@ -66,6 +66,8 @@
 
 #include <ros/time.h>
 
+#include <mutex>
+
 using namespace gazebo;
 
 enum {BL= 0, BR=1, FL=2, FR=3};
@@ -177,6 +179,11 @@ void HuskyPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf )
 
   joint_state_pub_ = rosnode_->advertise<sensor_msgs::JointState>("joint_states", 1);
 
+  this->cmd_vel_service_ = rosnode_->advertiseService<gazebo_msgs::SetHuskyCmdVelRequest, gazebo_msgs::SetHuskyCmdVelResponse>("husky/cmd_vel_service", boost::bind(&HuskyPlugin::OnCmdVelService, this, boost::placeholders::_1, boost::placeholders::_2));
+  this->wheel_speeds_service_ = rosnode_->advertiseService<gazebo_msgs::SetHuskyWheelSpeedsRequest, gazebo_msgs::SetHuskyWheelSpeedsResponse>("husky/wheel_speeds_service", boost::bind(&HuskyPlugin::OnWheelSpeedsService, this, boost::placeholders::_1, boost::placeholders::_2));
+  this->odom_service_ = rosnode_->advertiseService<gazebo_msgs::GetHuskyOdometryRequest, gazebo_msgs::GetHuskyOdometryResponse>("odom_service", boost::bind(&HuskyPlugin::OnOdometryService, this, boost::placeholders::_1, boost::placeholders::_2));
+  this->joint_state_service_ = rosnode_->advertiseService<gazebo_msgs::GetHuskyJointStatesRequest, gazebo_msgs::GetHuskyJointStatesResponse>("joint_states_service", boost::bind(&HuskyPlugin::OnJointStateService, this, boost::placeholders::_1, boost::placeholders::_2));
+
   js_.name.push_back( bl_joint_name_ );
   js_.position.push_back(0);
   js_.velocity.push_back(0);
@@ -220,6 +227,8 @@ void HuskyPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf )
 
 void HuskyPlugin::UpdateChild()
 {
+  std::lock_guard<std::mutex> lock(this->update_lock_);
+
   common::Time time_now = this->world_->SimTime();
   common::Time step_time = time_now - prev_update_time_;
   prev_update_time_ = time_now;
@@ -313,22 +322,21 @@ void HuskyPlugin::UpdateChild()
 #endif
   }
 
-  nav_msgs::Odometry odom;
-  odom.header.stamp.sec = time_now.sec;
-  odom.header.stamp.nsec = time_now.nsec;
-  odom.header.frame_id = "odom";
-  odom.child_frame_id = "base_footprint";
-  odom.pose.pose.position.x = odom_pose_[0];
-  odom.pose.pose.position.y = odom_pose_[1];
-  odom.pose.pose.position.z = 0;
+  odom_.header.stamp.sec = time_now.sec;
+  odom_.header.stamp.nsec = time_now.nsec;
+  odom_.header.frame_id = "odom";
+  odom_.child_frame_id = "base_footprint";
+  odom_.pose.pose.position.x = odom_pose_[0];
+  odom_.pose.pose.position.y = odom_pose_[1];
+  odom_.pose.pose.position.z = 0;
 
   tf::Quaternion qt;
   qt.setRPY(0,0,odom_pose_[2]);
 
-  odom.pose.pose.orientation.x = qt.getX();
-  odom.pose.pose.orientation.y = qt.getY();
-  odom.pose.pose.orientation.z = qt.getZ();
-  odom.pose.pose.orientation.w = qt.getW();
+  odom_.pose.pose.orientation.x = qt.getX();
+  odom_.pose.pose.orientation.y = qt.getY();
+  odom_.pose.pose.orientation.z = qt.getZ();
+  odom_.pose.pose.orientation.w = qt.getW();
 
   double pose_cov[36] = { 1e-3, 0, 0, 0, 0, 0,
                           0, 1e-3, 0, 0, 0, 0,
@@ -337,18 +345,18 @@ void HuskyPlugin::UpdateChild()
                           0, 0, 0, 0, 1e6, 0,
                           0, 0, 0, 0, 0, 1e3};
 
-  memcpy( &odom.pose.covariance[0], pose_cov, sizeof(double)*36 );
-  memcpy( &odom.twist.covariance[0], pose_cov, sizeof(double)*36 );
+  memcpy( &odom_.pose.covariance[0], pose_cov, sizeof(double)*36 );
+  memcpy( &odom_.twist.covariance[0], pose_cov, sizeof(double)*36 );
 
-  odom.twist.twist.linear.x = 0;
-  odom.twist.twist.linear.y = 0;
-  odom.twist.twist.linear.z = 0;
+  odom_.twist.twist.linear.x = 0;
+  odom_.twist.twist.linear.y = 0;
+  odom_.twist.twist.linear.z = 0;
 
-  odom.twist.twist.angular.x = 0;
-  odom.twist.twist.angular.y = 0;
-  odom.twist.twist.angular.z = 0;
+  odom_.twist.twist.angular.x = 0;
+  odom_.twist.twist.angular.y = 0;
+  odom_.twist.twist.angular.z = 0;
 
-  odom_pub_.publish( odom );
+  odom_pub_.publish( odom_ );
 
   js_.header.stamp.sec = time_now.sec;
   js_.header.stamp.nsec = time_now.nsec;
@@ -393,13 +401,22 @@ void HuskyPlugin::UpdateChild()
   }
 }
 
-
 void HuskyPlugin::OnCmdVel( const geometry_msgs::TwistConstPtr &msg)
+{
+  return this->OnCmdVel(*msg);
+}
+
+void HuskyPlugin::OnWheelSpeeds( const gazebo_msgs::WheelSpeeds::ConstPtr &msg )
+{
+    return this->OnWheelSpeeds(*msg);
+}
+
+void HuskyPlugin::OnCmdVel(const geometry_msgs::Twist &msg)
 {
   last_cmd_vel_time_ = this->world_->SimTime();
   double vr, va;
-  vr = msg->linear.x;
-  va = msg->angular.z;
+  vr = msg.linear.x;
+  va = msg.angular.z;
 
   wheel_speed_[BL] = vr - va * (wheel_sep_) / 2;
   wheel_speed_[BR] = vr + va * (wheel_sep_) / 2;
@@ -407,15 +424,14 @@ void HuskyPlugin::OnCmdVel( const geometry_msgs::TwistConstPtr &msg)
   wheel_speed_[FR] = vr + va * (wheel_sep_) / 2;
 }
 
-
-void HuskyPlugin::OnWheelSpeeds( const gazebo_msgs::WheelSpeeds::ConstPtr &msg )
+void HuskyPlugin::OnWheelSpeeds(const gazebo_msgs::WheelSpeeds &msg)
 {
   last_cmd_vel_time_ = this->world_->SimTime();
   double back_left, back_right, front_left, front_right;
-  back_left = msg->back_left_wheel;
-  back_right = msg->back_right_wheel;
-  front_left = msg->front_left_wheel;
-  front_right = msg->front_right_wheel;
+  back_left = msg.back_left_wheel;
+  back_right = msg.back_right_wheel;
+  front_left = msg.front_left_wheel;
+  front_right = msg.front_right_wheel;
 
   wheel_speed_[BL] = back_left;
   wheel_speed_[BR] = back_right;
@@ -423,6 +439,49 @@ void HuskyPlugin::OnWheelSpeeds( const gazebo_msgs::WheelSpeeds::ConstPtr &msg )
   wheel_speed_[FR] = front_right;
 }
 
+bool HuskyPlugin::OnCmdVelService(const gazebo_msgs::SetHuskyCmdVelRequest &req, gazebo_msgs::SetHuskyCmdVelResponse &resp)
+{
+  this->OnCmdVel(req.cmd_vel);
+
+  resp.status_message = "";
+  resp.success = true;
+
+  return resp.success;
+}
+
+bool HuskyPlugin::OnWheelSpeedsService(const gazebo_msgs::SetHuskyWheelSpeedsRequest &req, gazebo_msgs::SetHuskyWheelSpeedsResponse &resp)
+{
+  this->OnWheelSpeeds(req.wheel_speeds);
+
+  resp.status_message = "";
+  resp.success = true;
+
+  return resp.success;
+}
+
+bool HuskyPlugin::OnOdometryService(const gazebo_msgs::GetHuskyOdometryRequest &req, gazebo_msgs::GetHuskyOdometryResponse &resp)
+{
+  std::lock_guard<std::mutex> lock(this->update_lock_);
+
+  resp.odometry = this->odom_;
+
+  resp.status_message = "";
+  resp.success = true;
+
+  return resp.success;
+}
+
+bool HuskyPlugin::OnJointStateService(const gazebo_msgs::GetHuskyJointStatesRequest &req, gazebo_msgs::GetHuskyJointStatesResponse &resp)
+{
+  std::lock_guard<std::mutex> lock(this->update_lock_);
+
+  resp.joint_states = this->js_;
+
+  resp.status_message = "";
+  resp.success = true;
+
+  return resp.success;
+}
 
 void HuskyPlugin::spin()
 {

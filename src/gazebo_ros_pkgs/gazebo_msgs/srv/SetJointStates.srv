@@ -1,0 +1,5 @@
+#string joint_name                               # name of joint
+float64[] value                                 # new target value of joint
+---
+bool success                                    # return true if get successful
+string status_message                           # comments if available

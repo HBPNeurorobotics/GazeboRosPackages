@@ -12,24 +12,24 @@ from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Wrench
 
 
 def spawn_sdf_model_client(model_name, model_xml, robot_namespace, initial_pose, reference_frame, gazebo_namespace):
-    rospy.loginfo("Waiting for service %s/spawn_sdf_model"%gazebo_namespace)
-    rospy.wait_for_service(gazebo_namespace+'/spawn_sdf_model')
+    rospy.loginfo("Waiting for service %s/spawn_sdf_entity"%gazebo_namespace)
+    rospy.wait_for_service(gazebo_namespace+'/spawn_sdf_entity')
     try:
-      spawn_sdf_model = rospy.ServiceProxy(gazebo_namespace+'/spawn_sdf_model', SpawnModel)
-      rospy.loginfo("Calling service %s/spawn_sdf_model"%gazebo_namespace)
-      resp = spawn_sdf_model(model_name, model_xml, robot_namespace, initial_pose, reference_frame)
+      spawn_sdf_entity = rospy.ServiceProxy(gazebo_namespace+'/spawn_sdf_entity', SpawnEntity)
+      rospy.loginfo("Calling service %s/spawn_sdf_entity"%gazebo_namespace)
+      resp = spawn_sdf_entity(model_name, model_xml, robot_namespace, initial_pose, reference_frame)
       rospy.loginfo("Spawn status: %s"%resp.status_message)
       return resp.success
     except rospy.ServiceException, e:
       print "Service call failed: %s"%e
 
 def spawn_urdf_model_client(model_name, model_xml, robot_namespace, initial_pose, reference_frame, gazebo_namespace):
-    rospy.loginfo("Waiting for service %s/spawn_urdf_model"%gazebo_namespace)
-    rospy.wait_for_service(gazebo_namespace+'/spawn_urdf_model')
+    rospy.loginfo("Waiting for service %s/spawn_urdf_entity"%gazebo_namespace)
+    rospy.wait_for_service(gazebo_namespace+'/spawn_urdf_entity')
     try:
-      spawn_urdf_model = rospy.ServiceProxy(gazebo_namespace+'/spawn_urdf_model', SpawnModel)
-      rospy.loginfo("Calling service %s/spawn_urdf_model"%gazebo_namespace)
-      resp = spawn_urdf_model(model_name, model_xml, robot_namespace, initial_pose, reference_frame)
+      spawn_urdf_entity = rospy.ServiceProxy(gazebo_namespace+'/spawn_urdf_entity', SpawnEntity)
+      rospy.loginfo("Calling service %s/spawn_urdf_entity"%gazebo_namespace)
+      resp = spawn_urdf_entity(model_name, model_xml, robot_namespace, initial_pose, reference_frame)
       rospy.loginfo("Spawn status: %s"%resp.status_message)
       return resp.success
     except rospy.ServiceException, e:
@@ -49,4 +49,3 @@ def set_model_configuration_client(model_name, model_param_name, joint_names, jo
       return resp.success
     except rospy.ServiceException, e:
       print "Service call failed: %s"%e
-

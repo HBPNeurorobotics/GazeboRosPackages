@@ -3,6 +3,7 @@ project(gazebo_msgs)
 
 find_package(catkin REQUIRED COMPONENTS
   std_msgs
+  nav_msgs
   trajectory_msgs
   geometry_msgs
   sensor_msgs
@@ -31,13 +32,16 @@ add_message_files(
 add_service_files(DIRECTORY srv FILES
   ApplyBodyWrench.srv
   DeleteModel.srv
+  GetCameraImage.srv
   GetLinkState.srv
   GetPhysicsProperties.srv
+  SetJointStates.srv
   SetJointProperties.srv
   SetModelConfiguration.srv
   SpawnEntity.srv
   ApplyJointEffort.srv
   GetJointProperties.srv
+  GetJointStates.srv
   GetModelProperties.srv
   GetWorldProperties.srv
   SetLinkProperties.srv
@@ -60,11 +64,16 @@ add_service_files(DIRECTORY srv FILES
   SetVisualProperties.srv
   SetSensorNoiseProperties.srv
   GetSensorNoiseProperties.srv
+  SetHuskyCmdVel.srv
+  GetHuskyOdometry.srv
+  GetHuskyJointStates.srv
+  SetHuskyWheelSpeeds.srv
   )
 
 generate_messages(DEPENDENCIES
   std_msgs
   geometry_msgs
+  nav_msgs
   sensor_msgs
   trajectory_msgs
   )
@@ -73,6 +82,7 @@ catkin_package(
   CATKIN_DEPENDS
   message_runtime
   std_msgs
+  nav_msgs
   trajectory_msgs
   geometry_msgs
   sensor_msgs

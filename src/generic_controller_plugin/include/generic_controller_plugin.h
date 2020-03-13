@@ -42,6 +42,9 @@
 #include <generic_controller_plugin/SetPIDParameters.h>
 #include <generic_controller_plugin/JointProperties.h>
 
+#include <gazebo_msgs/SetJointStates.h>
+#include <gazebo_msgs/GetJointStates.h>
+
 #include <ros/ros.h>
 
 #include <algorithm>
@@ -96,6 +99,22 @@ private:
   // Generic velocity command callback function (ROS topic)
   void velocityCB(const std_msgs::Float64::ConstPtr &msg, const physics::JointPtr &joint);
 
+  // Generic get command callback function (ROS service), used by getPositionServiceCB and getVelocityServiceCB
+  template<class T>
+  bool getGeneralServiceCB(const gazebo_msgs::GetJointStates::Request &req, gazebo_msgs::GetJointStates::Response &res, const physics::JointPtr &joint, const T &value_map);
+
+  // Generic position get command callback function (ROS service)
+  bool getPositionServiceCB(const gazebo_msgs::GetJointStates::Request &req, gazebo_msgs::GetJointStates::Response &res, const physics::JointPtr &joint);
+
+  // Generic velocity get command callback function (ROS service)
+  bool getVelocityServiceCB(const gazebo_msgs::GetJointStates::Request &req, gazebo_msgs::GetJointStates::Response &res, const physics::JointPtr &joint);
+
+  // Generic position set command callback function (ROS service)
+  bool setPositionServiceCB(const gazebo_msgs::SetJointStates::Request &req, gazebo_msgs::SetJointStates::Response &res, const physics::JointPtr &joint);
+
+  // Generic velocity set command callback function (ROS service)
+  bool setVelocityServiceCB(const gazebo_msgs::SetJointStates::Request &req, gazebo_msgs::SetJointStates::Response &res, const physics::JointPtr &joint);
+
   // Generic PID parameter setter callback function (ROS service)
   bool setPIDParametersCB(SetPIDParameters::Request &req,
                           SetPIDParameters::Response &res);
@@ -123,6 +142,10 @@ private:
   std::vector<ros::Subscriber> m_pos_sub_vec;
   std::vector<ros::Subscriber> m_vel_sub_vec;
 
+  // ROS service for joint control values
+  std::vector<ros::ServiceServer> m_pos_service_vec;
+  std::vector<ros::ServiceServer> m_vel_service_vec;
+
   // Maps for joint names and rotation axes (visual properties for client-side animation)
   std::map<std::string, std::string> m_joint_name_mappings;
   std::map<std::string, geometry_msgs::Vector3> m_joint_axis_mappings;
@@ -144,6 +167,25 @@ private:
   // ROS joint properties getter service (joint names, lower/upper limits)
   private: ros::ServiceServer m_jointPropertiesService;
 };
+
+template<class T>
+bool GenericControlPlugin::getGeneralServiceCB(const gazebo_msgs::GetJointStates::Request &req, gazebo_msgs::GetJointStates::Response &res, const physics::JointPtr &joint, const T &value_map)
+{
+  auto joint_iterator = value_map.find(joint->GetScopedName());
+  if(joint_iterator == value_map.end())
+  {
+    res.success = false;
+    res.status_message = "Could not find joint " + joint->GetScopedName();
+  }
+  else
+  {
+    res.success = true;
+    res.status_message = "";
+    res.value.resize(1, joint_iterator->second);
+  }
+
+  return res.success;
+}
 
 } // namespace gazebo
 

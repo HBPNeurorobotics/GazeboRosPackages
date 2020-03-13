@@ -26,9 +26,13 @@
 
 #include <string>
 
+#include <sensor_msgs/fill_image.h>
+
 #include <gazebo/sensors/Sensor.hh>
 #include <gazebo/sensors/CameraSensor.hh>
 #include <gazebo/sensors/SensorTypes.hh>
+
+#include <ros/ros.h>
 
 namespace gazebo
 {
@@ -68,6 +72,10 @@ void GazeboRosCamera::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
   this->camera_ = this->camera;
 
   GazeboRosCameraUtils::Load(_parent, _sdf);
+
+  // Load service
+  this->_nh = ros::NodeHandle();
+  this->_service = this->_nh.advertiseService<gazebo_msgs::GetCameraImage::Request, gazebo_msgs::GetCameraImage::Response>(GetRobotNamespace(_parent, _sdf) + "/" + this->image_topic_name_ + "_service", boost::bind(&GazeboRosCamera::getNewCameraImage, this, _1, _2));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,5 +105,44 @@ void GazeboRosCamera::OnNewFrame(const unsigned char *_image,
       }
     }
   }
+}
+
+bool GazeboRosCamera::getNewCameraImage(const gazebo_msgs::GetCameraImageRequest &req, gazebo_msgs::GetCameraImageResponse &res)
+{
+    // Prevent publisher from copying while  we change
+    boost::mutex::scoped_lock lock(this->lock_);
+
+    // Force rendering of new image
+    try
+    {
+        this->camera->Render(true);
+    }
+    catch(const Ogre::InternalErrorException &e)
+    {
+        // Camera image cannot be rendered when simulation has not yet started. Inform user of problem
+        if(ros::Time::now().toNSec() <= 1000000)
+        {
+            throw std::logic_error("Couldn't render camera image. Make sure simulation has run at least once before requesting image");
+        }
+        else
+            throw;
+    }
+
+    // Update sensor update time as well as image published by publisher
+    this->sensor_update_time_ = this->parentSensor_->LastUpdateTime();
+    fillImage(this->image_msg_, this->type_, this->height_, this->width_,
+        this->skip_*this->width_, reinterpret_cast<const void*>(this->camera->ImageData()));
+
+
+    // copy data into image
+    res.image_data.header.frame_id = this->frame_name_;
+    res.image_data.header.stamp.sec = this->sensor_update_time_.sec;
+    res.image_data.header.stamp.nsec = this->sensor_update_time_.nsec;
+
+    res.image_data = this->image_msg_;
+
+    res.success = true;
+
+    return res.success;
 }
 }

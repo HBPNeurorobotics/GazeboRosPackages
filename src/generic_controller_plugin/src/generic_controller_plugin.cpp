@@ -315,12 +315,23 @@ std::string GenericControlPlugin::getControllerType(const sdf::ElementPtr &sdf_c
 void GenericControlPlugin::createPositionController(const physics::JointPtr &joint, const common::PID &pid_param)
 {
   // generate joint topic name using the model name as prefix
-  std::string topic_name = m_model->GetName() + "/" + joint->GetName() + "/cmd_pos";
-  replace(topic_name.begin(), topic_name.end(), ':', '_');
+  std::string name_prefix = m_model->GetName() + "/" + joint->GetName();
+  replace(name_prefix.begin(), name_prefix.end(), ':', '_');
+
+  const std::string topic_name = name_prefix + "/cmd_pos";
+  const std::string set_service_name = name_prefix + "/set_target";
+  const std::string get_service_name = name_prefix + "/get_target";
 
   // Add ROS topic for position control
   m_pos_sub_vec.push_back(m_nh.subscribe<std_msgs::Float64>(topic_name, 1,
                                                             boost::bind(&GenericControlPlugin::positionCB, this, _1, joint)));
+
+  // Add ROS service for position control
+  m_pos_service_vec.push_back(m_nh.advertiseService<gazebo_msgs::GetJointStates::Request, gazebo_msgs::GetJointStates::Response>(get_service_name,
+                                                                                 boost::bind(&GenericControlPlugin::getPositionServiceCB, this, _1, _2, joint)));
+
+  m_pos_service_vec.push_back(m_nh.advertiseService<gazebo_msgs::SetJointStates::Request, gazebo_msgs::SetJointStates::Response>(set_service_name,
+                                                                                 boost::bind(&GenericControlPlugin::setPositionServiceCB, this, _1, _2, joint)));
 
   // Store information of Actuator in Model class
   m_model->SaveControllerActuatorRosTopics(topic_name, "std_msgs/Float64");
@@ -337,11 +348,24 @@ void GenericControlPlugin::createPositionController(const physics::JointPtr &joi
 void GenericControlPlugin::createVelocityController(const physics::JointPtr &joint, const common::PID &pid_param)
 {
   // generate joint topic name using the model name as prefix
-  std::string topic_name = m_model->GetName() + "/" + joint->GetName() + "/cmd_vel";
+  std::string name_prefix = m_model->GetName() + "/" + joint->GetName();
+  replace(name_prefix.begin(), name_prefix.end(), ':', '_');
+
+  const std::string topic_name = name_prefix + "/cmd_pos";
+  const std::string set_service_name = name_prefix + "/set_target";
+  const std::string get_service_name = name_prefix + "/get_target";
 
   // Add ROS topic for velocity control
   m_vel_sub_vec.push_back(m_nh.subscribe<std_msgs::Float64>(topic_name, 1,
                                                             boost::bind(&GenericControlPlugin::velocityCB, this, _1, joint)));
+
+  // Add ROS service for position control
+  m_vel_service_vec.push_back(m_nh.advertiseService<gazebo_msgs::GetJointStates::Request, gazebo_msgs::GetJointStates::Response>(get_service_name,
+                                                                                 boost::bind(&GenericControlPlugin::getVelocityServiceCB, this, _1, _2, joint)));
+
+  m_vel_service_vec.push_back(m_nh.advertiseService<gazebo_msgs::SetJointStates::Request, gazebo_msgs::SetJointStates::Response>(set_service_name,
+                                                                                 boost::bind(&GenericControlPlugin::setVelocityServiceCB, this, _1, _2, joint)));
+
   // Store information of Actuator in Model class
   m_model->SaveControllerActuatorRosTopics(topic_name, "std_msgs/Float64");
 
@@ -371,6 +395,34 @@ void GenericControlPlugin::velocityCB(const std_msgs::Float64::ConstPtr &msg, co
   double velocity_m_per_sec(msg->data);
   m_joint_controller->SetVelocityTarget(joint->GetScopedName(), velocity_m_per_sec);
   //pid.SetCmd(velocity_m_per_sec);
+}
+
+bool GenericControlPlugin::getPositionServiceCB(const gazebo_msgs::GetJointStates::Request &req, gazebo_msgs::GetJointStates::Response &res, const physics::JointPtr &joint)
+{
+  return getGeneralServiceCB(req, res, joint, m_joint_controller->GetPositions());
+}
+
+bool GenericControlPlugin::getVelocityServiceCB(const gazebo_msgs::GetJointStates::Request &req, gazebo_msgs::GetJointStates::Response &res, const physics::JointPtr &joint)
+{
+  return getGeneralServiceCB(req, res, joint, m_joint_controller->GetVelocities());
+}
+
+bool GenericControlPlugin::setPositionServiceCB(const gazebo_msgs::SetJointStates::Request &req, gazebo_msgs::SetJointStates::Response &res, const physics::JointPtr &joint)
+{
+  res.success = m_joint_controller->SetPositionTarget(joint->GetScopedName(), req.value.at(0));
+  if(!res.success)
+    res.status_message = "Could not set position target for joint " + joint->GetScopedName();
+
+  return res.success;
+}
+
+bool GenericControlPlugin::setVelocityServiceCB(const gazebo_msgs::SetJointStates::Request &req, gazebo_msgs::SetJointStates::Response &res, const physics::JointPtr &joint)
+{
+  res.success = m_joint_controller->SetVelocityTarget(joint->GetScopedName(), req.value.at(0));
+  if(!res.success)
+    res.status_message = "Could not set velocity target for joint " + joint->GetScopedName();
+
+  return res.success;
 }
 
 bool GenericControlPlugin::setPIDParametersCB(SetPIDParameters::Request &req,

@@ -37,6 +37,11 @@
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <gazebo_msgs/WheelSpeeds.h>
 
+#include <gazebo_msgs/SetHuskyCmdVel.h>
+#include <gazebo_msgs/SetHuskyWheelSpeeds.h>
+#include <gazebo_msgs/GetHuskyJointStates.h>
+#include <gazebo_msgs/GetHuskyOdometry.h>
+
 #include <tf/transform_broadcaster.h>
 #include <ros/ros.h>
 
@@ -65,6 +70,14 @@ namespace gazebo
       void OnCmdVel( const geometry_msgs::TwistConstPtr &msg);
       void OnWheelSpeeds( const gazebo_msgs::WheelSpeeds::ConstPtr &msg);
 
+      void OnCmdVel(const geometry_msgs::Twist &msg);
+      void OnWheelSpeeds( const gazebo_msgs::WheelSpeeds &msg);
+
+      bool OnCmdVelService(const gazebo_msgs::SetHuskyCmdVelRequest &req, gazebo_msgs::SetHuskyCmdVelResponse &resp);
+      bool OnWheelSpeedsService(const gazebo_msgs::SetHuskyWheelSpeedsRequest &req, gazebo_msgs::SetHuskyWheelSpeedsResponse &resp);
+
+      bool OnOdometryService(const gazebo_msgs::GetHuskyOdometryRequest &req, gazebo_msgs::GetHuskyOdometryResponse &resp);
+      bool OnJointStateService(const gazebo_msgs::GetHuskyJointStatesRequest &req, gazebo_msgs::GetHuskyJointStatesResponse &resp);
 
       /// Parameters
       std::string node_namespace_;
@@ -92,6 +105,12 @@ namespace gazebo
       ros::Subscriber cmd_vel_sub_;
       ros::Subscriber wheel_speeds_sub_;
 
+      std::mutex update_lock_;
+      ros::ServiceServer odom_service_;
+      ros::ServiceServer joint_state_service_;
+      ros::ServiceServer cmd_vel_service_;
+      ros::ServiceServer wheel_speeds_service_;
+
       physics::WorldPtr world_;
       physics::ModelPtr model_;
       sensors::SensorPtr parent_sensor_;
@@ -112,6 +131,8 @@ namespace gazebo
 
       tf::TransformBroadcaster transform_broadcaster_;
       sensor_msgs::JointState js_;
+
+      nav_msgs::Odometry odom_;
 
       void spin();
       boost::thread *spinner_thread_;

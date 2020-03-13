@@ -9,4 +9,8 @@ string playback_path              # path to simulation recording to play (if any
 string token                      # the token of the request to use for storage access
 string ctx_id                     # the ctx_id if collab based simulation
 string experiment_id              # the experiment_id of the simulation needed to save files in the storage
+uint8 profiler                    # profiler mode
+uint8 PROFILER_DISABLED=0
+uint8 PROFILER_CLE_STEP=1
+uint8 PROFILER_CPROFILE=2
 ---
