@@ -1,4 +1,2 @@
 <robot name="iiwa14">
-  <passive_joint name="gripper_left_joint"/>
-  <passive_joint name="gripper_right_joint"/>
 </robot>
