@@ -20,6 +20,7 @@
   <arg name="pred_pos_frame" default="world" />
   <arg name="pred_pos_topic" default="/pred_pos" />
   <arg name="target_position_topic" default="/target_position" />
+  <arg name="error_topic" default="/error" />
 
   <node name="pub_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen"/>
 
@@ -27,6 +28,7 @@
     <param name="pred_pos_frame" value="$(arg pred_pos_frame)" />
     <param name="pred_pos_topic" value="$(arg pred_pos_topic)" />
     <param name="target_position_topic" value="$(arg target_position_topic)" />
+    <param name="error_topic" value="$(arg error_topic)" />
   </node>
 
   <node name="Main_TR_CL_nengo_node" pkg="target_reaching_nengo" type="main_TR_CL_node.py" output="screen">
