@@ -1,8 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="arm_1_joint_cmd_pos_name" default="/iiwa/effort_j1_position_controller/command" />
+  <!--<arg name="arm_1_joint_cmd_pos_name" default="/iiwa/effort_j1_position_controller/command" />
   <arg name="arm_2_joint_cmd_pos_name" default="/iiwa/effort_j2_position_controller/command" />
-  <arg name="arm_3_joint_cmd_pos_name" default="/iiwa/effort_j4_position_controller/command" />
+  <arg name="arm_3_joint_cmd_pos_name" default="/iiwa/effort_j4_position_controller/command" />-->
+  <arg name="arm_1_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_1/cmd_pos" />
+  <arg name="arm_2_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_2/cmd_pos" />
+  <arg name="arm_3_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_4/cmd_pos" />
   <arg name="up_down_lower_limit" default="[-2.8]" />
   <arg name="up_down_upper_limit" default="[2.8]" />
   <arg name="left_right_lower_limit" default="[-2.8]" />

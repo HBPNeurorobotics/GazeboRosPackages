@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import Float32MultiArray
-from geometry_msgs.msg import PointStamped
+from std_msgs.msg import Float32MultiArray, Float64MultiArray
+from geometry_msgs.msg import PointStamped, Point
 from std_msgs.msg import Header
 from gazebo_msgs.msg import LinkStates
 
@@ -53,8 +53,8 @@ class PubKukaTarget:
         self.error = data.data
 
     def pred_pos_cb(self, data):
-        has_nan = all([e == e for e in data.data])
-        if has_nan
+        has_nan = all([e != e for e in data.data])
+        if has_nan:
             if self.wait_for_next_pred:
                 self.wait_for_next_pred = False
             return
@@ -62,7 +62,8 @@ class PubKukaTarget:
             return
         self.wait_for_next_pred = True
         pred_pos = data.data[-3:]
-        self.target_position = to_point_stamped(self.pred_pos_frame, pred_pos)
+        rospy.loginfo("pred_pos: {}".format(pred_pos))
+        self.target_position = to_point_stamped(self.pred_pos_frame, Point(pred_pos[0], pred_pos[1], pred_pos[2]))
 
     def publish_target_position(self):
         if self.target_position is not None:
