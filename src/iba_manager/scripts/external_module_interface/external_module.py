@@ -62,8 +62,7 @@ class ExternalModule(object):
 
         # Initialize synchronization variables
         self.module_data = []
-        self._database_req = GetDataRequest()
-        self._database_resp = GetDataResponse()
+        self.synced_data = GetDataResponse()
 
         self.run_step_lock = Lock()
 
@@ -97,13 +96,13 @@ class ExternalModule(object):
         """
         for self._state.cur_step in range(0, self._state.steps_per_cle_cycle):
             # Retrieve synchronized data from the ExternalModuleManager
-            manager_sync_data_resp = self._manager_get_data_proxy.call(self.module_id, self._state.cur_step)
-            while manager_sync_data_resp.lock.data is True:
+            self.synced_data = self._manager_get_data_proxy.call(self.module_id, self._state.cur_step)
+            while self.synced_data.lock.data is True:
                 # ExternalModuleManager will keep module locked until all modules have finished the previous run_step.
                 # Once all data is available, the manager will set the lock flag to False. Continue polling manager
                 # until that happens
                 time.sleep(0.001)
-                manager_sync_data_resp = self._manager_get_data_proxy.call(self.module_id, self._state.cur_step)
+                self.synced_data = self._manager_get_data_proxy.call(self.module_id, self._state.cur_step)
 
             # Call user code
             self.run_step()
