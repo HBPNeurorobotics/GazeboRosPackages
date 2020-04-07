@@ -28,7 +28,6 @@ class PubKukaTarget:
 
         pred_pos_topic = rospy.get_param('~pred_pos_topic', '/pred_pos')
         self.pred_pos_sub = rospy.Subscriber(pred_pos_topic, Float32MultiArray, self.pred_pos_cb, queue_size=1)
-        self.wait_for_next_pred = False
 
         self.error = None
         error_topic = rospy.get_param('~error_topic', '/error')
@@ -36,6 +35,19 @@ class PubKukaTarget:
 
         target_position_topic = rospy.get_param('~target_position_topic', '/target_position')
         self.target_position_pub = rospy.Publisher(target_position_topic, PointStamped, queue_size=1)
+
+        self.should_subtract_world_offset = rospy.get_param('should_subtract_world_offset', True)
+        if self.should_subtract_world_offset:
+            self.world_offset_x = 1.4
+            self.world_offset_y = -0.6
+            self.world_offset_z = 0.6
+
+    def subtract_world_offset(self, position):
+        position[0] -= self.world_offset_x
+        position[1] -= self.world_offset_y
+        position[2] -= self.world_offset_z
+        position[2] += 0.1
+        return position
 
     def gazebo_link_states_cb(self, link_states):
         gazebo_target_position = None
@@ -53,17 +65,28 @@ class PubKukaTarget:
         self.error = data.data
 
     def pred_pos_cb(self, data):
-        has_nan = all([e != e for e in data.data])
-        if has_nan:
-            if self.wait_for_next_pred:
-                self.wait_for_next_pred = False
+        predictions = [e for e in data.data if e == e]
+        if predictions == []:
             return
-        if self.wait_for_next_pred:
-            return
-        self.wait_for_next_pred = True
-        pred_pos = data.data[-3:]
+        #has_nan = any([e != e for e in data.data])
+        #if has_nan:
+            #return
+        pred_pos = predictions[-3:]
+        if self.should_subtract_world_offset:
+            pred_pos = self.subtract_world_offset(pred_pos)
         rospy.loginfo("pred_pos: {}".format(pred_pos))
-        self.target_position = to_point_stamped(self.pred_pos_frame, Point(pred_pos[0], pred_pos[1], pred_pos[2]))
+        if pred_pos[0] < -0.5:
+            return
+        #if len(predictions) >= 10:
+            #if pred_pos[0] > 0.5 or (self.error and self.error[0] < 3):
+                #index = int(0.7 * len(predictions))
+                #pred_pos = predictions[index:index+3]
+            #if self.error and self.error[0] < 2:
+                #index = int(0.3 * len(predictions))
+                #pred_pos = predictions[index:index+3]
+        pred_pos_pt = Point(pred_pos[0], pred_pos[1], pred_pos[2])
+        rospy.loginfo("pred_pos_pt: {}".format(pred_pos_pt))
+        self.target_position = to_point_stamped(self.pred_pos_frame, pred_pos_pt)
 
     def publish_target_position(self):
         if self.target_position is not None:

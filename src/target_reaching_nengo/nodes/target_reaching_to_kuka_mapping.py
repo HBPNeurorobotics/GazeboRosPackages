@@ -86,11 +86,11 @@ class TargetReachingToKUKAMapping:
             positions_to_send[self.arm_3_joint_index - 1] = self.arm_joint_cmds["arm_3_joint"]
         #for i in range(3,6):
             #positions_to_send[i] = 0.0
-        if self.last_positions_to_send:
-            pos_diff = list(map(lambda x,y:abs(x-y), self.last_positions_to_send, positions_to_send))
-            if all(diff <= self.pos_diff_tolerance for diff in pos_diff):
-                return
-        self.last_positions_to_send = positions_to_send
+        #if self.last_positions_to_send:
+            #pos_diff = list(map(lambda x,y:abs(x-y), self.last_positions_to_send, positions_to_send))
+            #if all(diff <= self.pos_diff_tolerance for diff in pos_diff):
+                #return
+        #self.last_positions_to_send = positions_to_send
         to_pub = "self.arm_joint_cmds: {}, pos to send: {}".format(self.arm_joint_cmds, positions_to_send)
         self.received_joint_cmds_pub.publish(to_pub)
         self.arm_joint_cmds = {}
@@ -108,10 +108,9 @@ def main(argv=None):
     rospy.init_node("TargetReachingToKUKAMapping")
     mapping = TargetReachingToKUKAMapping()
     rospy.loginfo("TargetReachingToKUKAMapping initialized")
-    rate = rospy.Rate(40)
-    mapping.send_arm_trajectory2()
+    rate = rospy.Rate(10)
     while not rospy.is_shutdown():
-        #mapping.send_arm_trajectory()
+        mapping.send_arm_trajectory()
         rate.sleep()
 
 if __name__ == "__main__":

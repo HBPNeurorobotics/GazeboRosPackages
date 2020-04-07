@@ -33,7 +33,7 @@ class Base_network():
         self.next_pos_delta_factor = rospy.get_param('~next_pos_delta_factor', 1.)
         self.next_pos_error_factor = rospy.get_param('~next_pos_error_factor', 0.33)
         self.arm_3_joint_index = rospy.get_param('~arm_3_joint_index', 3)
-        self.max_pos_delta = rospy.get_param('~max_pos_delta', 0.05)
+        self.max_pos_delta = rospy.get_param('~max_pos_delta', 0.5)
         self.last_publishing_time = rospy.get_rostime()
         self.publishing_time_tolerance = rospy.get_param('~publishing_time_tolerance', 0.1)
         self.base_network_class_data_pub = rospy.Publisher('/base_network_class_data_pub', String, queue_size=1)

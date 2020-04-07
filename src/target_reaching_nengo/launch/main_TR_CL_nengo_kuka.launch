@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-  <!--<arg name="arm_1_joint_cmd_pos_name" default="/iiwa/effort_j1_position_controller/command" />
+  <arg name="arm_1_joint_cmd_pos_name" default="/iiwa/effort_j1_position_controller/command" />
   <arg name="arm_2_joint_cmd_pos_name" default="/iiwa/effort_j2_position_controller/command" />
-  <arg name="arm_3_joint_cmd_pos_name" default="/iiwa/effort_j4_position_controller/command" />-->
-  <arg name="arm_1_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_1/cmd_pos" />
+  <arg name="arm_3_joint_cmd_pos_name" default="/iiwa/effort_j4_position_controller/command" />
+  <!--<arg name="arm_1_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_1/cmd_pos" />
   <arg name="arm_2_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_2/cmd_pos" />
-  <arg name="arm_3_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_4/cmd_pos" />
+  <arg name="arm_3_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_4/cmd_pos" />-->
   <arg name="up_down_lower_limit" default="[-2.8]" />
   <arg name="up_down_upper_limit" default="[2.8]" />
   <arg name="left_right_lower_limit" default="[-2.8]" />
@@ -51,5 +51,15 @@
     <param name="arm_3_joint_index" value="$(arg arm_3_joint_index)" />
     <param name="next_pos_delta_factor" value="$(arg next_pos_delta_factor)" />
     <param name="map_phi_to_2pi" value="$(arg map_phi_to_2pi)" />
+  </node>
+
+  <node name="mapping" pkg="target_reaching_nengo" type="target_reaching_to_kuka_mapping.py" output="screen">
+    <param name="arm_1_joint_cmd_pos_name" value="$(arg arm_1_joint_cmd_pos_name)" />
+    <param name="arm_2_joint_cmd_pos_name" value="$(arg arm_2_joint_cmd_pos_name)" />
+    <param name="arm_3_joint_cmd_pos_name" value="$(arg arm_3_joint_cmd_pos_name)" />
+    <param name="joint_states_topic" value="$(arg joint_states_topic)" />
+    <rosparam param="joint_names" subst_value="True">$(arg joint_names)</rosparam>
+    <param name="arm_3_joint_index" value="$(arg arm_3_joint_index)" />
+    <param name="follow_joint_trajectory_param" value="$(arg follow_joint_trajectory_param)" />
   </node>
 </launch>
