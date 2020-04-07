@@ -1,4 +1,4 @@
-#include "gazebo_ros_muscle_interface.h"
+#include "gazebo_ros_muscle_interface/gazebo_ros_muscle_interface.h"
 
 #include <gazebo/physics/World.hh>
 #include <gazebo/physics/opensim/OpensimPhysics.hh>

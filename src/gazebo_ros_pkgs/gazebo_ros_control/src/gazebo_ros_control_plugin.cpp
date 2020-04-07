@@ -44,6 +44,8 @@
 
 #include <gazebo_ros_control/gazebo_ros_control_plugin.h>
 #include <urdf/model.h>
+#include <chrono>
+#include <thread>
 
 namespace gazebo_ros_control
 {
@@ -110,8 +112,15 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
     ROS_DEBUG_STREAM_NAMED("loadThread","Using default plugin for RobotHWSim (none specified in URDF/SDF)\""<<robot_hw_sim_type_str_<<"\"");
   }
 
+  // temporary fix to bug regarding the robotNamespace in default_robot_hw_sim.cpp (see #637)
+  std::string robot_ns = robot_namespace_;
+
   // Get the Gazebo simulation period
+#if GAZEBO_MAJOR_VERSION >= 8
   ros::Duration gazebo_period(parent_model_->GetWorld()->Physics()->GetMaxStepSize());
+#else
+  ros::Duration gazebo_period(parent_model_->GetWorld()->GetPhysicsEngine()->GetMaxStepSize());
+#endif
 
   // Decide the plugin control period
   if(sdf_->HasElement("controlPeriod"))
@@ -173,7 +182,7 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
     urdf::Model urdf_model;
     const urdf::Model *const urdf_model_ptr = urdf_model.initString(urdf_string) ? &urdf_model : NULL;
 
-    if(!robot_hw_sim_->initSim(robot_namespace_, model_nh_, parent_model_, urdf_model_ptr, transmissions_))
+    if(!robot_hw_sim_->initSim(robot_ns, model_nh_, parent_model_, urdf_model_ptr, transmissions_))
     {
       ROS_FATAL_NAMED("gazebo_ros_control","Could not initialize robot simulation interface");
       return;
@@ -190,7 +199,7 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
       (boost::bind(&GazeboRosControlPlugin::Update, this));
 
   }
-  catch(pluginlib::LibraryLoadException &ex)
+  catch(pluginlib::PluginlibException &ex)
   {
     ROS_FATAL_STREAM_NAMED("gazebo_ros_control","Failed to create robot simulation interface loader: "<<ex.what());
   }
@@ -202,7 +211,11 @@ void GazeboRosControlPlugin::Load(gazebo::physics::ModelPtr parent, sdf::Element
 void GazeboRosControlPlugin::Update()
 {
   // Get the simulation time and period
+#if GAZEBO_MAJOR_VERSION >= 8
   gazebo::common::Time gz_time_now = parent_model_->GetWorld()->SimTime();
+#else
+  gazebo::common::Time gz_time_now = parent_model_->GetWorld()->GetSimTime();
+#endif
   ros::Time sim_time_ros(gz_time_now.sec, gz_time_now.nsec);
   ros::Duration sim_period = sim_time_ros - last_update_sim_time_ros_;
 
@@ -276,7 +289,7 @@ std::string GazeboRosControlPlugin::getURDF(std::string param_name) const
       model_nh_.getParam(param_name, urdf_string);
     }
 
-    usleep(100000);
+    std::this_thread::sleep_for(std::chrono::microseconds(100000));
   }
   ROS_DEBUG_STREAM_NAMED("gazebo_ros_control", "Recieved urdf from param server, parsing...");
 

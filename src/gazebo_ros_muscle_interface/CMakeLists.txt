@@ -44,6 +44,7 @@ find_package(OGRE)
 
 ## Generate messages in the 'msg' folder
 add_message_files(
+  DIRECTORY msg
   FILES
   MuscleState.msg
   MuscleStates.msg
@@ -51,6 +52,7 @@ add_message_files(
 
 ## Generate services in the 'srv' folder
 add_service_files(
+  DIRECTORY srv
   FILES
   GetMuscleActivations.srv
   SetMuscleActivations.srv
