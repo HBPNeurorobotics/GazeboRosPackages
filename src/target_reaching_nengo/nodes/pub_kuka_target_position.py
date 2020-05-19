@@ -72,7 +72,7 @@ class PubKukaTarget:
     def subtract_world_offset(self, position):
         position[0] -= self.world_offset_x
         position[1] -= self.world_offset_y
-        #position[1] += 0.08
+        position[1] += 0.12
         position[2] -= self.world_offset_z
         position[2] += 0.08
         return position
