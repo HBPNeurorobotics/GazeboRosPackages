@@ -16,7 +16,7 @@ class PubLWA4PTarget:
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
-        self.standby_target = Point(0.1, -0.5, 0.6)
+        self.standby_target = Point(0.1, -0.3, 0.5)
         self.is_stanby_target = True
         self.target_position = to_point_stamped(self.pred_pos_frame, self.standby_target)
 
