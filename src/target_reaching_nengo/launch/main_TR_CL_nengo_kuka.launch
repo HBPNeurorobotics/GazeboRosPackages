@@ -3,9 +3,6 @@
   <arg name="arm_1_joint_cmd_pos_name" default="/iiwa/effort_j1_position_controller/command" />
   <arg name="arm_2_joint_cmd_pos_name" default="/iiwa/effort_j2_position_controller/command" />
   <arg name="arm_3_joint_cmd_pos_name" default="/iiwa/effort_j4_position_controller/command" />
-  <!--<arg name="arm_1_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_1/cmd_pos" />
-  <arg name="arm_2_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_2/cmd_pos" />
-  <arg name="arm_3_joint_cmd_pos_name" default="/iiwa14/iiwa_joint_4/cmd_pos" />-->
   <arg name="up_down_lower_limit" default="[-2.8]" />
   <arg name="up_down_upper_limit" default="[2.8]" />
   <arg name="left_right_lower_limit" default="[-2.8]" />
@@ -24,8 +21,12 @@
   <arg name="pred_pos_topic" default="/pred_pos" />
   <arg name="target_position_topic" default="/target_position" />
   <arg name="error_topic" default="/error" />
+  <arg name="sphere_marker_pub_topic" default="/sphere_marker" />
 
-  <node name="pub_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen"/>
+  <node name="pub_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen">
+    <param name="target_position_topic" value="$(arg target_position_topic)" />
+    <param name="sphere_marker_pub_topic" value="$(arg sphere_marker_pub_topic)" />
+  </node>
 
   <node name="pub_pred_pos_as_target" pkg="target_reaching_nengo" type="pub_kuka_target_position.py" output="screen">
     <param name="pred_pos_frame" value="$(arg pred_pos_frame)" />
