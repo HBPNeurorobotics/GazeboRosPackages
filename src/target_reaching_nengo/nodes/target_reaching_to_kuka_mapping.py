@@ -59,21 +59,6 @@ class TargetReachingToKUKAMapping:
                     self.last_joint_state[i] = joint_state.position[j]
                     self.has_joint_state = True
 
-    def send_arm_trajectory2(self, duration=0.5):
-        positions_to_send = [0.0 for i in range(len(self.joint_names))]
-        positions_to_send[0] = 1.
-        #positions_to_send[1] = 0.5
-        #positions_to_send[3] = 0.5
-        arm_goal = FollowJointTrajectoryGoal()
-        arm_goal.trajectory.joint_names = self.joint_names
-        waypoint = JointTrajectoryPoint()
-        for i in range(len(self.joint_names)):
-            waypoint.positions = positions_to_send
-        waypoint.time_from_start = rospy.Duration.from_sec(duration)
-        arm_goal.trajectory.points.append(waypoint)
-        self.arm_traj_client.cancel_all_goals()
-        self.arm_traj_client.send_goal(arm_goal)
-
     def send_arm_trajectory(self, duration=0.5):
         if not self.has_joint_state or not self.has_joint_cmd:
             return
