@@ -16,7 +16,7 @@ class PubKukaTarget:
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
-        self.standby_target = Point(0.1, -0.5, 0.9)
+        self.standby_target = Point(0.1, -0.5, 0.65)
         self.is_stanby_target = True
         self.target_position = to_point_stamped(self.pred_pos_frame, self.standby_target)
 
@@ -72,9 +72,9 @@ class PubKukaTarget:
     def subtract_world_offset(self, position):
         position[0] -= self.world_offset_x
         position[1] -= self.world_offset_y
-        position[1] += 0.12
+        position[1] -= 0.02
         position[2] -= self.world_offset_z
-        position[2] += 0.08
+        position[2] += 0.15
         return position
 
     #def gazebo_link_states_cb(self, link_states):
