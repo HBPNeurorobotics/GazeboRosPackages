@@ -11,7 +11,7 @@
   <arg name="near_far_upper_limit" default="[2.8, 2.8]" />
   <arg name="joint_states_topic" default="/joint_states" />
   <arg name="shoulder_frame" default="panda_link0" />
-  <arg name="tcp_frame" default="panda_link7" />
+  <arg name="tcp_frame" default="panda_link8" />
   <arg name="joint_names" default="['panda_joint1', 'panda_joint2', 'panda_joint3', 'panda_joint4', 'panda_joint5', 'panda_joint6', 'panda_joint7']" />
   <arg name="arm_3_joint_index" default="4" />
   <arg name="follow_joint_trajectory_param" default="/panda/position_joint_trajectory_controller/follow_joint_trajectory" />
