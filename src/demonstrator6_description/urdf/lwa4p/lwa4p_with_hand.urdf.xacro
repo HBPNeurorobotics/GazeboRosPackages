@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot name="lwa4p"
+       xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="PI" value="3.14159265359"/>
+
+  <xacro:include filename="$(find sacc_rec_grasp_description)/urdf/scene.gazebo.xacro" />
+
+  <!-- World for Gazebo simulation -->
+  <link name ="world"/>
+  <link name ="arm_base_link"/>
+  <joint name="arm_base_joint" type="fixed">
+      <parent link="world" />
+      <child link = "arm_base_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+  <!-- load the LWA4p -->
+  <xacro:include filename="$(find schunk_description)/urdf/lwa4p/lwa4p.urdf.xacro" />
+  <!-- instantiate with a base link to attach it to -->
+  <xacro:schunk_lwa4p parent="arm_base_link" name="arm">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <xacro:property name="arm_1_ref" value="2.1" />
+      <xacro:property name="arm_2_ref" value="2.1" />
+      <xacro:property name="arm_3_ref" value="2.1" />
+      <xacro:property name="arm_4_ref" value="2.1" />
+      <xacro:property name="arm_5_ref" value="2.1" />
+      <xacro:property name="arm_6_ref" value="2.1" />
+  </xacro:schunk_lwa4p>
+
+  <!-- load the SVH hand -->
+  <xacro:include filename="$(find schunk_svh_description)/urdf/svh.urdf.xacro" />
+  <xacro:svh parent="arm_tcp_link" name="svh_hand" side="-1" robot_namespace="/svh/svh_ros_control_node">
+    <origin xyz="0 0 0"  rpy= "0 0 0" />
+  </xacro:svh>
+
+</robot>
