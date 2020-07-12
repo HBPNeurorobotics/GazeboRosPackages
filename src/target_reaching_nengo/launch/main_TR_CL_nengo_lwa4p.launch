@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="arm_1_joint_cmd_pos_name" default="/lwa4p/arm_1_joint/cmd_pos" />
+  <arg name="arm_2_joint_cmd_pos_name" default="/lwa4p/arm_2_joint/cmd_pos" />
+  <arg name="arm_3_joint_cmd_pos_name" default="/lwa4p/arm_3_joint/cmd_pos" />
+  <arg name="up_down_lower_limit" default="[-2.8]" />
+  <arg name="up_down_upper_limit" default="[2.8]" />
+  <arg name="left_right_lower_limit" default="[-2.8]" />
+  <arg name="left_right_upper_limit" default="[2.8]" />
+  <arg name="near_far_lower_limit" default="[-2.8, -2.8]" />
+  <arg name="near_far_upper_limit" default="[2.8, 2.8]" />
+  <arg name="joint_states_topic" default="/joint_states" />
+  <arg name="shoulder_frame" default="arm_base_link" />
+  <arg name="tcp_frame" default="arm_tcp_link" />
+  <arg name="joint_names" default="['arm_1_joint', 'arm_2_joint', 'arm_3_joint', 'arm_4_joint', 'arm_5_joint', 'arm_6_joint']" />
+  <arg name="arm_3_joint_index" default="3" />
+  <arg name="follow_joint_trajectory_param" default="/arm/arm_eff_traj_controller/follow_joint_trajectory" />
+  <arg name="next_pos_delta_factor" default="0.7" />
+  <arg name="map_phi_to_2pi" default="True" />
+  <arg name="pred_pos_frame" default="world" />
+  <arg name="pred_pos_topic" default="/pred_pos" />
+  <arg name="target_position_topic" default="/target_position" />
+  <arg name="error_topic" default="/error" />
+
+  <node name="pub_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen"/>
+
+  <node name="pub_pred_pos_as_target" pkg="target_reaching_nengo" type="pub_lwa4p_target_position.py" output="screen">
+    <param name="pred_pos_frame" value="$(arg pred_pos_frame)" />
+    <param name="pred_pos_topic" value="$(arg pred_pos_topic)" />
+    <param name="target_position_topic" value="$(arg target_position_topic)" />
+    <param name="error_topic" value="$(arg error_topic)" />
+  </node>
+
+  <node name="Main_TR_CL_nengo_node" pkg="target_reaching_nengo" type="main_TR_CL_node.py" output="screen">
+    <param name="arm_1_joint_cmd_pos_name" value="$(arg arm_1_joint_cmd_pos_name)" />
+    <param name="arm_2_joint_cmd_pos_name" value="$(arg arm_2_joint_cmd_pos_name)" />
+    <param name="arm_3_joint_cmd_pos_name" value="$(arg arm_3_joint_cmd_pos_name)" />
+    <rosparam param="up_down_lower_limit" subst_value="True">$(arg up_down_lower_limit)</rosparam>
+    <rosparam param="up_down_upper_limit" subst_value="True">$(arg up_down_upper_limit)</rosparam>
+    <rosparam param="left_right_lower_limit" subst_value="True">$(arg left_right_lower_limit)</rosparam>
+    <rosparam param="left_right_upper_limit" subst_value="True">$(arg left_right_upper_limit)</rosparam>
+    <rosparam param="near_far_lower_limit" subst_value="True">$(arg near_far_lower_limit)</rosparam>
+    <rosparam param="near_far_upper_limit" subst_value="True">$(arg near_far_upper_limit)</rosparam>
+    <param name="joint_states_topic" value="$(arg joint_states_topic)" />
+    <param name="shoulder_frame" value="$(arg shoulder_frame)" />
+    <param name="tcp_frame" value="$(arg tcp_frame)" />
+    <rosparam param="joint_names" subst_value="True">$(arg joint_names)</rosparam>
+    <param name="arm_3_joint_index" value="$(arg arm_3_joint_index)" />
+    <param name="next_pos_delta_factor" value="$(arg next_pos_delta_factor)" />
+    <param name="map_phi_to_2pi" value="$(arg map_phi_to_2pi)" />
+  </node>
+
+  <node name="mapping" pkg="target_reaching_nengo" type="target_reaching_to_lwa4p_mapping.py" output="screen">
+    <param name="arm_1_joint_cmd_pos_name" value="$(arg arm_1_joint_cmd_pos_name)" />
+    <param name="arm_2_joint_cmd_pos_name" value="$(arg arm_2_joint_cmd_pos_name)" />
+    <param name="arm_3_joint_cmd_pos_name" value="$(arg arm_3_joint_cmd_pos_name)" />
+    <param name="joint_states_topic" value="$(arg joint_states_topic)" />
+    <rosparam param="joint_names" subst_value="True">$(arg joint_names)</rosparam>
+    <param name="arm_3_joint_index" value="$(arg arm_3_joint_index)" />
+    <param name="follow_joint_trajectory_param" value="$(arg follow_joint_trajectory_param)" />
+  </node>
+</launch>
