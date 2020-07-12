@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="microsaccade_angle" default="0.032"/>
+  <arg name="microsaccade_duration" default="0.2"/>
+  <arg name="trajectory_controller_name" default="head_pos_traj_controller" />
+
+  <group ns="head">
+    <include file="$(find dvs_eye_movements)/launch/tf_controller.launch">
+      <remap from="robot_description" to="/robot_description"/>
+
+      <arg name="target_tf" default="head_target"/>
+      <arg name="base_link" default="head_base_link"/>
+      <arg name="left_eye_link" default="head_ref_dvs_left_link"/>
+      <arg name="right_eye_link" default="head_ref_dvs_right_link"/>
+
+      <arg name="microsaccade_angle" value="$(arg microsaccade_angle)" />
+      <arg name="microsaccade_duration" value="$(arg microsaccade_duration)" />
+      <arg name="trajectory_controller_name" value="$(arg trajectory_controller_name)" />
+    </include>
+  </group>
+</launch>

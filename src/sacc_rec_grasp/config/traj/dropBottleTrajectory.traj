@@ -1,0 +1,7 @@
+--- name: dropBottleTrajectory
+--- type: joint_based
+--- date: 2019-Oct-24 12:34:16.178898
+--- reference_frame: 
+ arm_1_joint arm_2_joint arm_3_joint arm_4_joint arm_5_joint arm_6_joint
+0.859		-0.931		1.309		-0.179		-0.869		0.459		wp	0
+0.269		-0.929		1.309		-0.179		-0.869		0.459		wp	0

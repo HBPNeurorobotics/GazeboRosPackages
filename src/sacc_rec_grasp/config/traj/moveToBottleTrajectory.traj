@@ -1,0 +1,7 @@
+--- name: moveToBottleTrajectory
+--- type: joint_based
+--- date: 2019-Oct-24 12:03:14.536876
+--- reference_frame: 
+ arm_1_joint arm_2_joint arm_3_joint arm_4_joint arm_5_joint arm_6_joint
+0.924		-0.637		1.945		-0.179		-1.169		0.229		wp	0
+0.859		-1.048		1.306		-0.179		-0.87		0.465		wp	0

@@ -1,0 +1,7 @@
+--- name: dropPenTrajectory
+--- type: joint_based
+--- date: 2019-Oct-24 12:29:44.745072
+--- reference_frame: 
+ arm_1_joint arm_2_joint arm_3_joint arm_4_joint arm_5_joint arm_6_joint
+0.869		-0.871		1.403		-0.179		-0.639		0.699		wp	0
+0.22		-0.753		1.457		-0.179		-0.639		0.699		wp	0

@@ -1,0 +1,15 @@
+<robot name="hbp">
+  <passive_joint name="svh_hand_Thumb_Opposition"/>
+  <passive_joint name="svh_hand_Thumb_Flexion"/>
+  <passive_joint name="svh_hand_Index_Finger_Proximal"/>
+  <passive_joint name="svh_hand_Index_Finger_Distal"/>
+  <passive_joint name="svh_hand_Middle_Finger_Proximal"/>
+  <passive_joint name="svh_hand_Middle_Finger_Distal"/>
+  <passive_joint name="svh_hand_Finger_Spread"/>
+  <passive_joint name="svh_hand_Pinky"/>
+  <passive_joint name="svh_hand_Ring_Finger"/>
+
+  <passive_joint name="head_joint_1"/>
+  <passive_joint name="head_joint_2"/>
+  <passive_joint name="head_joint_3"/>
+</robot>

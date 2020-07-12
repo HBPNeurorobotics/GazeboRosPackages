@@ -1,0 +1,52 @@
+# Publish all joint states -----------------------------------
+hardware_interface:
+  sim_control_mode: 0 # 0: position, 1: velocity
+  joints:
+    - head_joint_1
+    - head_joint_2
+    - head_joint_3
+
+head_joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 100
+
+head_pos_traj_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - head_joint_1
+    - head_joint_2
+    - head_joint_3
+
+# Joint Trajectory Controller - effort based -------------------------------
+head_eff_traj_controller:
+  cycle_time_error_threshold: 0.1
+  type: effort_controllers/JointTrajectoryController
+  # These joints can likely just be copied from the hardware_interface list above
+  joints:
+    - head_joint_1
+    - head_joint_2
+    - head_joint_3
+  constraints:
+    goal_time: 1.0
+    head_joint_1:
+      trajectory: 0.60
+      goal:       1.00
+    head_joint_2:
+      trajectory: 0.60
+      goal:       1.00
+    head_joint_3:
+      trajectory: 0.60
+      goal:       1.00
+  gains:
+    head_joint_1: { p: 10000, d: 16, i: 0.1, i_clamp: 1 }
+    head_joint_2: { p: 10000, d: 16, i: 0.1, i_clamp: 1 }
+    head_joint_3: { p: 10000, d: 16, i: 0.1, i_clamp: 1 }
+
+# Group Position Controllers ---------------------------------------
+# Allows to send single ROS msg of Float64MultiArray to all joints
+head_joint_pos_controller:
+  type: "position_controllers/JointGroupPositionController"
+  joints:
+    - head_joint_1
+    - head_joint_2
+    - head_joint_3

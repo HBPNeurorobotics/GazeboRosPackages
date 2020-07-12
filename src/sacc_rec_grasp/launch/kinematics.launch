@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="sim" default="false" />
+
+  <!-- Load robot description from xacro file -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find sacc_rec_grasp_description)/urdf/scene.urdf.xacro' sim:=$(arg sim)" />
+  <param name="robot_description_semantic" textfile="$(find sacc_rec_grasp_description)/srdf/robot.srdf"/>
+
+  <!-- Publish joint state as tf transforms -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen">
+  </node>
+
+</launch>

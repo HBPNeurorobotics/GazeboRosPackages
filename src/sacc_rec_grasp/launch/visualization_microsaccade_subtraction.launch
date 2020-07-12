@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+  <env name="LC_NUMERIC" value="en_US.UTF-8"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find sacc_rec_grasp_description)/config/miccrosaccade_subtraction.rviz"/>
+</launch>

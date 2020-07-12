@@ -1,0 +1,5 @@
+# code for the predefined pose
+string pose
+string label
+----
+bool success

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="data_dir" default="data" />
+  <arg name="spinnaker" default="false"/>
+  <arg name="inject_error" default="false"/>
+  <arg name="learn_online" default="false"/>
+  <arg name="eye_reference_point" default="[0.9, 0.45, 0.07]"/>
+  <rosparam param="eye_reference_point" subst_value="True">$(arg eye_reference_point)</rosparam>
+
+  <node name="grasping_manager" pkg="sacc_rec_grasp" type="grasping_manager.py" output="screen">
+    <param name="data_directory" value="$(arg data_dir)"/>
+    <param name="predict_online" value="$(arg spinnaker)"/>
+    <param name="learn_online" value="$(arg learn_online)"/>
+    <param name="inject_error" value="$(arg inject_error)"/>
+  </node>
+</launch>

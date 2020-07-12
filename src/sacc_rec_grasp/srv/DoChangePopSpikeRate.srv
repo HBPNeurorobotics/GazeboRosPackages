@@ -1,0 +1,4 @@
+float64[] rates
+int32[] neuron_ids
+---
+bool success

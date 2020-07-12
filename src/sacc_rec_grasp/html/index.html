@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <script type="text/javascript" src="/bower_components/eventemitter2/lib/eventemitter2.js"></script>
+    <script type="text/javascript" src="/bower_components/roslib/build/roslib.min.js"></script>
+    <script type="text/javascript" src="/require.js"></script>
+    <script type="text/javascript" src="/main.js"></script>
+    <title>Microsaccades Grasping Demo</title>
+  </head>
+
+  <body>
+    <div class="dvs-container">
+      <div class="dvs">
+        <h3 align="center">left DVS</h3>
+        <img src="http://ids-shuttle-2:8080/stream?topic=/web_rendering_left">
+      </div>
+
+      <div class="dvs">
+        <h3 align="center">right DVS</h3>
+        <img src="http://ids-shuttle-2:8080/stream?topic=/web_rendering_right">
+      </div>
+    </div>
+
+    <div class="text-container">
+      <h3 id="status">I am loading</h3>
+    </div>
+
+    <div class="plot-container">
+      <img id="hidden_layer" src="/plots/spiketrain.png">
+      <img id="output_spikes" src="/plots/agg_output_spikes.png">
+    </div>
+
+  </body>
+</html>

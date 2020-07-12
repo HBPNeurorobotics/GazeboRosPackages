@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="sim" default="false" />
+  <arg name="gazebo" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="control_gui" default="false" />
+  <arg name="tf_controller" default="true" />
+  <arg name="trajectory_controller_name" default="head_pos_traj_controller" />
+  <arg name="serial_device" default="/dev/ttyUSB1" />
+  <arg name="protocol_version" default="p1" doc="Choses the dynamixel protocol variant to be used (p1 or p2)"/>
+  <arg name="prefix" default="head" />
+
+
+  <group ns="$(arg prefix)">
+    <remap from="robot_description" to="/robot_description"/>
+
+    <group unless="$(arg sim)">
+      <include file="$(find dvs_head_control)/launch/driver.launch">
+        <arg name="serial_device" value="$(arg serial_device)" />
+        <!-- underscore needed here -->
+        <arg name="prefix" value="$(arg prefix)_" />
+      </include>
+    </group>
+
+    <group if="$(arg sim)">
+      <param name="generic_hw_control_loop/loop_hz" value="300" />
+      <param name="generic_hw_control_loop/cycle_time_error_threshold" value="0.01" />
+
+      <!-- Load hardware interface -->
+      <group unless="$(arg gazebo)">
+        <node name="sim_hardware_interface" pkg="ros_control_boilerplate" type="sim_hw_main"
+            output="screen" />
+      </group>
+    </group>
+
+    <!-- spawn controllers -->
+    <rosparam file="$(find sacc_rec_grasp)/config/head_controllers.yaml" command="load" />
+    <node name="head_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+          output="screen" args="head_joint_state_controller $(arg trajectory_controller_name)" />
+
+    <node name="joint_state_relay" pkg="topic_tools" type="relay" args="joint_states /joint_states"/>
+  </group>
+
+</launch>

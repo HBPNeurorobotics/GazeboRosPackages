@@ -1,0 +1,7 @@
+--- name: moveToPenTrajectory
+--- type: joint_based
+--- date: 2019-Oct-24 12:14:31.097907
+--- reference_frame: 
+ arm_1_joint arm_2_joint arm_3_joint arm_4_joint arm_5_joint arm_6_joint
+0.919		-0.934		1.671		-0.179		-1.169		0.229		wp	0
+0.869		-0.989		1.349		-0.179		-0.639		0.699		wp	0

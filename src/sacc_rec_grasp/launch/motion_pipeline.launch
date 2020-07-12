@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="arm_velocity" default="0.2" />
+  <arg name="arm_acceleration" default="0.5" />
+
+  <arg name="trajectory_controller_name" default="arm_pos_traj_controller" />
+
+  <!-- cartesian arguments -->
+  <arg name="pose_topic_name" default="target_pose"/>
+  <arg name="robot_control_reference_frame" default="arm_base_link"/>
+  <arg name="error_margin_translation" default="0.01"/>
+  <arg name="error_margin_rotation" default="0.05"/>
+
+  <group ns="arm">
+    <remap from="robot_description" to="/robot_description"/>
+    <remap from="robot_description_semantic" to="/robot_description_semantic"/>
+
+    <param name="velocity" value="$(arg arm_velocity)"/>
+    <param name="acceleration" value="$(arg arm_acceleration)"/>
+
+    <include file="$(find motion_launch)/launch/motion_pipeline.launch">
+      <arg name="trajectory_folder" value="$(find sacc_rec_grasp)/config/traj"/>
+      <arg name="controller_namespace" value="$(arg trajectory_controller_name)"/>
+      <arg name="trac_ik_chain_end" value="arm_tcp_link"/>
+
+      <arg name="pose_topic_name" value="$(arg pose_topic_name)"/>
+      <arg name="robot_control_reference_frame" value="$(arg robot_control_reference_frame)"/>
+      <arg name="error_margin_translation" value="$(arg error_margin_translation)"/>
+      <arg name="error_margin_rotation" value="$(arg error_margin_rotation)"/>
+    </include>
+  </group>
+</launch>

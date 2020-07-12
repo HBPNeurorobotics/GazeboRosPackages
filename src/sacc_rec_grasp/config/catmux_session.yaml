@@ -1,0 +1,72 @@
+---
+common:
+  before_commands:
+    - \[ `whoami` == "tamer" \] && export ROS_IP=$(ip addr show enp0s31f6 | grep "inet\ " | sed -e 's/^\s\+inet\ //' | sed -e 's/\/.*//')
+    - fzirob change_environment
+  default_window: spiking
+
+parameters:
+  sim: false # Whether to start simulation or real hardware
+  spinnaker: false # Whether to use Spinnaker or Auryn
+  inject_error: false # Spinnaker error or label injection
+
+windows:
+  - name: roscore
+    splits:
+      - commands:
+        - roscore
+    delay: 5
+  - name: kinematics
+    splits:
+      - commands:
+        - roslaunch sacc_rec_grasp kinematics.launch sim:=${sim}
+    delay: 3
+  - name: visualization
+    splits:
+      - commands:
+        - roslaunch sacc_rec_grasp visualization.launch
+      - commands:
+        - rosrun rqt_combined_trajectory_designer rqt_combined_trajectory_designer __ns:=arm
+  - name: arm
+    layout: tiled
+    splits:
+      - commands:
+        - roslaunch sacc_rec_grasp arm.launch sim:=${sim}
+      - commands:
+        - roslaunch sacc_rec_grasp motion_pipeline.launch
+  - name: hand
+    layout: tiled
+    splits:
+      - commands:
+        - roslaunch sacc_rec_grasp hand.launch sim:=${sim} serial_device:=/dev/ttyUSB1
+      - commands:
+        - rosrun sacc_rec_grasp hand_manager.py __ns:=svh
+      - commands:
+        - sleep 30
+        - rosconsole set /svh/svh_ros_control_node ros.schunk_svh_driver warn
+
+  - name: head
+    layout: tiled
+    splits:
+      - commands:
+        - roslaunch sacc_rec_grasp head.launch sim:=${sim} serial_device:=/dev/ttyUSB0
+      - commands:
+        - roslaunch sacc_rec_grasp microsaccade.launch
+  - name: dvs
+    layout: tiled
+    splits:
+      - commands:
+        - roslaunch sacc_rec_grasp web_monitor.launch
+      - commands:
+        - roslaunch sacc_rec_grasp dvs.launch sim:=${sim}
+  - name: spiking
+    layout: tiled
+    splits:
+      - commands:
+        - roslaunch sacc_rec_grasp spiking.launch spinnaker:=${spinnaker} inject_error:=${inject_error}
+      - commands:
+        - rosrun dvs_eye_movements rosbag_recorder.py /joint_states:=/head/joint_states
+      - commands:
+        - echo "\n\nroslaunch schunk_canopen_driver move_to_home_position.launch"
+      - commands:
+        - roslaunch sacc_rec_grasp manager.launch spinnaker:=${spinnaker} inject_error:=${inject_error}

@@ -1,0 +1,8 @@
+--- name: dropSpongeTrajectory
+--- type: joint_based
+--- date: 2019-Sep-16 14:58:09.683903
+--- reference_frame: 
+ arm_1_joint arm_2_joint arm_3_joint arm_4_joint arm_5_joint arm_6_joint
+0.659		-0.831		1.589		-0.189		-0.901		0.569		wp	0
+0.01		-0.829		1.589		-0.189		-0.899		0.216		wp	0
+-0.4		-0.829		1.4		0.5		-0.899		0.05		wp	0

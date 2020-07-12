@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+  <node name="center_event_viewer" pkg="dvs_renderer" type="dvs_renderer">
+    <param name="display_method" value="red-blue"/>
+    <remap from="events" to="/events_cropped" />
+  </node>
+
+  <node name="center_view" pkg="image_view" type="image_view">
+    <remap from="image" to="/dvs_rendering" />
+  </node>
+
+  <node name="event_cropper" pkg="dvs_eye_movements" type="event_cropper.py">
+    <remap from="events" to="/dvs_right/events" />
+  </node>
+</launch>

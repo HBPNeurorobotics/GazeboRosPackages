@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="spinnaker" default="false"/>
+  <arg name="learn_online" default="false"/>
+  <arg name="data_dir" default="data" />
+  <arg name="net_topo_exe_path" default="$(find sacc_rec_grasp)/network_topology_executable/exp_rbp_flash"/>
+  <arg name="inject_error" default="false"/>
+
+  <node unless="$(arg spinnaker)" name="erbp_snn_predict" pkg="sacc_rec_grasp" type="run_classification.py" output="screen">
+    <param name="data_directory" value="$(arg data_dir)"/>
+    <param name="net_topo_exe" value="$(arg net_topo_exe_path)"/>
+  </node>
+
+  <group if="$(arg spinnaker)" ns="spinnaker">
+    <node name="spike_injector" pkg="sacc_rec_grasp" type="spike_injector.py"/>
+    <node name="output_spike_receiver" pkg="sacc_rec_grasp" type="live_output_spike_receiver.py" output="screen">
+      <param name="inject_error" value="$(arg inject_error)"/>
+    </node>
+
+    <!-- spinnaker online learning or offline from dataset -->
+    <group if="$(arg learn_online)">
+      <node name="spike_receiver" pkg="sacc_rec_grasp" type="run_live_classification_spinnaker.py" output="screen">
+        <param name="data_directory" value="$(arg data_dir)"/>
+        <param name="inject_error" value="$(arg inject_error)"/>
+      </node>
+    </group>
+
+    <group unless="$(arg learn_online)">
+      <node name="spike_receiver" pkg="sacc_rec_grasp" type="run_offline_classification_spinnaker.py" output="screen">
+        <param name="data_directory" value="$(arg data_dir)"/>
+        <param name="weight_path" value="$(find sacc_rec_grasp)/weights/spinnaker.pkl"/>
+      </node>
+    </group>
+  </group>
+</launch>

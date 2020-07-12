@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<robot name="hbp"
+       xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="sim" default="false"/>
+  <xacro:property name="PI" value="3.14159265359"/>
+  <xacro:property name="base_height" value="0.995"/>
+  <xacro:property name="table_length" value="2.00"/>
+  <xacro:property name="table_width" value="0.96"/>
+  <xacro:property name="table_thickness" value="0.037"/>
+  <xacro:property name="table_leg_length" value="0.05"/>
+  <xacro:property name="table_leg_width" value="0.05"/>
+  <xacro:property name="table_leg_thickness" value="${base_height - table_thickness}"/>
+  <xacro:property name="tv_length" value="1.12"/>
+  <xacro:property name="tv_width" value="0.66"/>
+  <xacro:property name="tv_thickness" value="0.13"/>
+
+  <xacro:include filename="$(find sacc_rec_grasp_description)/urdf/scene.gazebo.xacro" />
+
+  <!-- World for Gazebo simulation -->
+  <link name ="world"/>
+  <link name="table_corner_link"/>
+  <joint name="table_corner_joint" type="fixed">
+    <parent link="world" />
+    <child link = "table_corner_link" />
+    <origin rpy="0 0 0" xyz="0 0 ${base_height}"/>
+  </joint>
+  <link name ="arm_base_link"/>
+  <joint name="arm_base_joint" type="fixed">
+      <parent link="table_corner_link" />
+      <child link = "arm_base_link" />
+      <origin xyz="0.18 0.18 0" rpy="0 0 -0.51" />
+  </joint>
+
+  <!-- load the LWA4p -->
+  <xacro:include filename="$(find schunk_description)/urdf/lwa4p/lwa4p.urdf.xacro" />
+  <!-- instantiate with a base link to attach it to -->
+  <xacro:schunk_lwa4p parent="arm_base_link" name="arm">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <xacro:property name="arm_1_ref" value="2.1" />
+      <xacro:property name="arm_2_ref" value="2.1" />
+      <xacro:property name="arm_3_ref" value="2.1" />
+      <xacro:property name="arm_4_ref" value="2.1" />
+      <xacro:property name="arm_5_ref" value="2.1" />
+      <xacro:property name="arm_6_ref" value="2.1" />
+  </xacro:schunk_lwa4p>
+
+  <!-- load the SVH hand -->
+  <xacro:include filename="$(find schunk_svh_description)/urdf/svh.urdf.xacro" />
+  <xacro:svh parent="arm_tcp_link" name="svh_hand" side="-1" robot_namespace="/svh/svh_ros_control_node">
+    <origin xyz="0 0 0"  rpy= "0 0 0" />
+  </xacro:svh>
+
+  <link name="dvs_head_help_link">
+        <visual>
+            <geometry>
+                <box size="0.02 0.02 0.02"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <material name="green">
+                <color rgba="0 1.0 0 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.02 0.02 0.02"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </collision>
+        <xacro:default_inertial mass="0.001"/>
+  </link>
+
+  <joint name="dvs_head_help_joint" type="fixed">
+    <parent link="table_corner_link" />
+    <child link = "dvs_head_help_link" />
+    <origin xyz="0.12 0.575 0.08" rpy="0 0 0" />
+  </joint>
+
+  <!-- load the dvs head -->
+  <xacro:include filename="$(find dvs_head_description)/urdf/dvs_head.urdf.xacro"/>
+  <!-- Create a DVS_HEAD attached to parent in namespace prefix and with the origin below -->
+  <xacro:arg name="stereo" default="true"/>
+  <xacro:dvs_head parent="dvs_head_help_link" prefix="head_" sim="$(arg sim)" stereo="$(arg stereo)" robot_namespace="/head">
+    <origin xyz="0.05 0 0" rpy="0 0 0"/>
+  </xacro:dvs_head>
+
+  <link name="tv_link">
+        <visual>
+            <geometry>
+                <box size="${tv_length} ${tv_width} ${tv_thickness}"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <material name="Cyan">
+                <color rgba="0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${tv_length} ${tv_width} ${tv_thickness}"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </collision>
+        <xacro:default_inertial mass="10"/>
+  </link>
+
+  <joint name="tv_joint" type="fixed">
+    <parent link="world" />
+    <child link = "tv_link" />
+    <origin xyz="1.15 0.895 ${base_height + 0.53}" rpy="${pi/2} 0 0" />
+  </joint>
+
+  <xacro:include filename="$(find sacc_rec_grasp_description)/urdf/table_macro.urdf.xacro" />
+  <xacro:table suffix="" parent="world" base_height="${base_height}" length="${table_length}"
+               width="${table_width}" thickness="${table_thickness}">
+    <origin xyz="${table_length/2} ${table_width/2} ${base_height - table_thickness/2}" rpy="0 0 0" />
+  </xacro:table>
+
+</robot>

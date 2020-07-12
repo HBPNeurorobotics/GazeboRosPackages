@@ -1,0 +1,24 @@
+{
+  "name": "MicrosaccadeGrasping",
+  "authors": [
+    "Jacques KAISER <jkaiser@fzi.de>"
+  ],
+  "description": "Web viewer for the HBP Microsaccade Grasping demo",
+  "main": "index.html",
+  "keywords": [
+    "hbp"
+  ],
+  "license": "FZI",
+  "homepage": "https://ids-git.fzi.de/hbp/sacc_rec_grasp",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "roslib": "roslibjs#^0.20.0"
+  }
+}

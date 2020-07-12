@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="pcan_device" default="auto" />
+  <arg name="trajectory_controller_name" default="arm_pos_traj_controller" />
+  <arg name="sim" default="false" />
+  <arg name="gazebo" default="false" />
+
+  <group ns="arm">
+    <remap from="robot_description" to="/robot_description"/>
+
+    <group unless="$(arg sim)">
+      <include file="$(find schunk_canopen_driver)/launch/driver.launch">
+        <arg name="pcan_device" value="$(arg pcan_device)" />
+        <arg name="with_ros_control" value="True" />
+        <arg name="do_autostart" value="True" />
+        <arg name="trajectory_controller_name" value="$(arg trajectory_controller_name)" />
+        <!--     <arg name="debug" value="true" /> -->
+      </include>
+    </group>
+
+    <group if="$(arg sim)">
+      <param name="generic_hw_control_loop/loop_hz" value="300" />
+      <param name="generic_hw_control_loop/cycle_time_error_threshold" value="0.01" />
+
+      <!-- Load hardware interface -->
+      <group unless="$(arg gazebo)">
+        <node name="sim_hardware_interface" pkg="ros_control_boilerplate" type="sim_hw_main"
+            output="screen" />
+      </group>
+    </group>
+
+    <!-- Load controller settings -->
+    <rosparam file="$(find sacc_rec_grasp)/config/arm_controllers.yaml" command="load"/>
+
+    <!-- spawn controllers -->
+    <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+          output="screen" args="
+                                arm_joint_state_controller
+                                $(arg trajectory_controller_name)
+                                " />
+    <!-- spawn stopped controllers -->
+    <node name="stopped_arm_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+          output="screen" args="--stopped
+                                arm_cartesian_motion_controller
+                                arm_motion_control_handle
+                                " />
+    <node name="joint_state_relay" pkg="topic_tools" type="relay" args="joint_states /joint_states"/>
+  </group>
+</launch>

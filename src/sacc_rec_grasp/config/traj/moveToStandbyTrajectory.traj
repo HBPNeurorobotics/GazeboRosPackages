@@ -1,0 +1,6 @@
+--- name: moveToStandbyTrajectory
+--- type: joint_based
+--- date: 2019-Jul-04 14:42:07.683601
+--- reference_frame: 
+ arm_1_joint arm_2_joint arm_3_joint arm_4_joint arm_5_joint arm_6_joint
+0.229		0.349		1.929		-0.179		0		0.235		wp	0

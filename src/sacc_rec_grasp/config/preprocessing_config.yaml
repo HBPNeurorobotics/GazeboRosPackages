@@ -1,0 +1,30 @@
+topics :
+  - '/dvs_right/events'
+#  - '/dvs_left/events'
+dvs_res : 128
+
+# if attention_window == True
+att_win_size : 32
+use_online_median : True
+# if online_median == True
+online_median_event_amount : 1000
+# if online_median == False
+att_time_frame : 0.02
+# if attention_window == False
+down_sample_res : 32
+
+sample_pause_train : 0.4
+sample_pause_test : 0.4
+
+event_polarity : 'dual'
+
+# number of samples for train and test (all classes combined)
+max_samples_train : 196
+max_samples_test : 4
+n_samples_train : 196
+n_samples_test : 4
+
+label_freq : 100
+
+use_attention_window : False
+use_crop: True

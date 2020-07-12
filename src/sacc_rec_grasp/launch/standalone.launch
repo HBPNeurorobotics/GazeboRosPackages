@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="sim" default="false" />
+  <arg name="arm_velocity" default="0.25" />
+  <arg name="arm_acceleration" default="0.25" />
+  <arg name="data_dir" default="data" />
+  <arg name="net_topo_exe_path" default="$(find sacc_rec_grasp)/network_topology_executable/exp_rbp_flash"/>
+  <arg name="spinnaker" default="false"/>
+  <arg name="hand_serial_device" default="/dev/ttyUSB0" />
+  <arg name="head_serial_device" default="/dev/ttyUSB1" />
+  <arg name="inject_error" default="false"/>
+
+  <include file="$(find sacc_rec_grasp)/launch/arm.launch">
+    <arg name="arm_velocity" value="$(arg arm_velocity)"/>
+    <arg name="arm_acceleration" value="$(arg arm_acceleration)"/>
+  </include>
+
+  <include file="$(find sacc_rec_grasp)/launch/hand.launch">
+    <arg name="sim" value="$(arg sim)"/>
+    <arg name="serial_device" value="$(arg hand_serial_device)"/>
+  </include>
+
+  <include file="$(find sacc_rec_grasp)/launch/head.launch">
+    <arg name="sim" value="$(arg sim)"/>
+    <arg name="serial_device" value="$(arg head_serial_device)"/>
+  </include>
+
+  <include file="$(find sacc_rec_grasp)/launch/dvs.launch">
+    <arg name="sim" value="$(arg sim)"/>
+  </include>
+
+  <include file="$(find sacc_rec_grasp)/launch/web_monitor.launch">
+  </include>
+
+  <include file="$(find sacc_rec_grasp)/launch/spiking.launch">
+    <arg name="spinnaker" value="$(arg spinnaker)"/>
+    <arg name="data_dir" value="$(arg data_dir)"/>
+    <arg name="net_topo_exe_path" value="$(arg net_topo_exe_path)"/>
+    <arg name="inject_error" value="$(arg inject_error)"/>
+  </include>
+
+  <include file="$(find sacc_rec_grasp)/launch/manager.launch">
+    <arg name="spinnaker" value="$(arg spinnaker)"/>
+    <arg name="data_dir" value="$(arg data_dir)"/>
+    <arg name="inject_error" value="$(arg inject_error)"/>
+  </include>
+
+  <node name="rosbag_recorder" pkg="dvs_eye_movements" type="rosbag_recorder.py"/>
+</launch>

@@ -1,0 +1,88 @@
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 24px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 700;
+  line-height: 26.4px;
+}
+
+.dvs-container {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.text-container {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+}
+
+.plot-container {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+}
+
+.plot-container img {
+  flex-grow: 1;
+}
+
+.dvs {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dvs-container img {
+  border-radius: 35%;
+  height: 400px;
+  width: 95%;
+  image-rendering: crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.text-container {
+  display: flex;
+  justify-content: center;
+}
+
+#status:before,
+#status:after {
+  font-family: FontAwesome;
+  /* -- inside the relative position of blockquote -- */
+  top: 13px;
+  font-size: 24px;
+}
+#status:before {
+  content: "\f10d";
+  margin-right: 13px;
+}
+
+#status:after {
+  content: "\f10e";
+  margin-left: 13px;
+}
+
+
+.plot-container img {
+  height: 500px;
+  width: 50%;
+}
+
+img:before {
+    content: ' ';
+    display: block;
+    position: absolute;
+    height: 400px;
+    width: 95%;
+    background-image: url(https://via.placeholder.com/500);
+}

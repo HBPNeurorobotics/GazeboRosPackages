@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find sacc_rec_grasp_description)/urdf/table_leg_macro.urdf.xacro" />
+
+  <xacro:macro name="table" params="parent suffix base_height length width thickness *origin">
+
+    <link name="table${suffix}_link">
+      <visual>
+        <geometry>
+          <box size="${table_length} ${table_width} ${table_thickness}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <material name="white">
+          <color rgba="1.0 1.0 1.0 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="${table_length} ${table_width} ${table_thickness}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </collision>
+      <xacro:default_inertial mass="10"/>
+    </link>
+
+    <joint name="table${suffix}_joint" type="fixed">
+      <parent link="${parent}" />
+      <child link = "table${suffix}_link" />
+      <xacro:insert_block name="origin" />
+    </joint>
+
+    <xacro:table_leg suffix="_1" parent="table${suffix}_link" length="${table_leg_length}"
+                     width="${table_leg_width}" thickness="${(base_height-table_thickness)}">
+      <origin xyz="${-table_length/2 + table_leg_length/2}
+                   ${-table_width/2 + table_leg_width/2}
+                   ${-(base_height-table_thickness)/2 - table_thickness/2}"
+              rpy="0 0 0" />
+    </xacro:table_leg>
+
+    <xacro:table_leg suffix="_2" parent="table${suffix}_link" length="${table_leg_length}"
+                     width="${table_leg_width}" thickness="${(base_height-table_thickness)}">
+      <origin xyz="${-table_length/2 + table_leg_length/2}
+                   ${table_width/2 - table_leg_width/2}
+                   ${-(base_height-table_thickness)/2 - table_thickness/2}"
+              rpy="0 0 0" />
+    </xacro:table_leg>
+
+    <xacro:table_leg suffix="_3" parent="table${suffix}_link" length="${table_leg_length}"
+                     width="${table_leg_width}" thickness="${(base_height-table_thickness)}">
+      <origin xyz="${table_length/2 - table_leg_length/2}
+                   ${table_width/2 - table_leg_width/2}
+                   ${-(base_height-table_thickness)/2 - table_thickness/2}"
+              rpy="0 0 0" />
+    </xacro:table_leg>
+
+    <xacro:table_leg suffix="_4" parent="table${suffix}_link" length="${table_leg_length}"
+                     width="${table_leg_width}" thickness="${(base_height-table_thickness)}">
+      <origin xyz="${table_length/2 - table_leg_length/2}
+                   ${-table_width/2 + table_leg_width/2}
+                   ${-(base_height-table_thickness)/2 - table_thickness/2}"
+              rpy="0 0 0" />
+    </xacro:table_leg>
+
+    <gazebo reference="table${suffix}_link">
+      <material>Gazebo/White</material>
+      <selfCollide>True</selfCollide>
+    </gazebo>
+
+  </xacro:macro>
+</robot>

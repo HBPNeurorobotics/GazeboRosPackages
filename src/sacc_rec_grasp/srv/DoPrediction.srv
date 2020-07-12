@@ -1,0 +1,3 @@
+string path_to_rosbag
+---
+int32 predicted_label

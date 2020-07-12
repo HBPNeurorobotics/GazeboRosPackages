@@ -1,0 +1,85 @@
+# Settings for ros_control control loop
+hardware_control_loop:
+   loop_hz: 125
+
+# Settings for ros_control hardware interface
+hardware_interface:
+   joints:
+     - svh_hand_Thumb_Opposition
+     - svh_hand_Thumb_Flexion
+     - svh_hand_Index_Finger_Proximal
+     - svh_hand_Index_Finger_Distal
+     - svh_hand_Middle_Finger_Proximal
+     - svh_hand_Middle_Finger_Distal
+     - svh_hand_Finger_Spread
+     - svh_hand_Pinky
+     - svh_hand_Ring_Finger
+
+# Publish all joint states ----------------------------------
+svh_joint_state_controller:
+   type:         joint_state_controller/JointStateController
+   publish_rate: 50
+
+# Joint Trajectory Controller - position based -------------------------------
+# For detailed explanations of parameter see http://wiki.ros.org/joint_trajectory_controller
+svh_pos_based_traj_controller_hand:
+   type: position_controllers/JointTrajectoryController
+   publish_rate: 50
+   joints:
+     - svh_hand_Thumb_Opposition
+     - svh_hand_Thumb_Flexion
+     - svh_hand_Index_Finger_Proximal
+     - svh_hand_Index_Finger_Distal
+     - svh_hand_Middle_Finger_Proximal
+     - svh_hand_Middle_Finger_Distal
+     - svh_hand_Finger_Spread
+     - svh_hand_Pinky
+     - svh_hand_Ring_Finger
+
+# Joint Trajectory Controller - effort based -------------------------------
+# For detailed explanations of parameter see http://wiki.ros.org/joint_trajectory_controller
+svh_eff_based_traj_controller_hand:
+   type: effort_controllers/JointTrajectoryController
+   publish_rate: 50
+   joints:
+     - svh_hand_Thumb_Opposition
+     - svh_hand_Thumb_Flexion
+     - svh_hand_Index_Finger_Proximal
+     - svh_hand_Index_Finger_Distal
+     - svh_hand_Middle_Finger_Proximal
+     - svh_hand_Middle_Finger_Distal
+     - svh_hand_Finger_Spread
+     - svh_hand_Pinky
+     - svh_hand_Ring_Finger
+   gains:
+        svh_hand_Thumb_Opposition: { p: 100, d: 2, i: 0.01}
+        svh_hand_Thumb_Flexion: { p: 100, d: 2, i: 0.01}
+        svh_hand_Index_Finger_Proximal: { p: 100, d: 2, i: 0.01}
+        svh_hand_Index_Finger_Distal: { p: 500, d: 0, i: 0.01}
+        svh_hand_Middle_Finger_Proximal: { p: 100, d: 2, i: 0.01}
+        svh_hand_Middle_Finger_Distal: { p: 100, d: 0, i: 0.01}
+        svh_hand_Finger_Spread: { p: 100, d: 2, i: 0.01}
+        svh_hand_Pinky: { p: 100, d: 2, i: 0.01}
+        svh_hand_Ring_Finger: { p: 100, d: 2, i: 0.01}
+
+gazebo_ros_control:
+    pid_gains:
+        svh_hand_Thumb_Opposition: { p: 100, d: 2, i: 0.01}
+        svh_hand_Thumb_Flexion: { p: 100, d: 2, i: 0.01}
+        svh_hand_Index_Finger_Proximal: { p: 100, d: 2, i: 0.01}
+        svh_hand_Index_Finger_Distal: { p: 500, d: 0, i: 0.01}
+        svh_hand_Middle_Finger_Proximal: { p: 100, d: 2, i: 0.01}
+        svh_hand_Middle_Finger_Distal: { p: 100, d: 0, i: 0.01}
+        svh_hand_Finger_Spread: { p: 100, d: 2, i: 0.01}
+        svh_hand_Pinky: { p: 100, d: 2, i: 0.01}
+        svh_hand_Ring_Finger: { p: 100, d: 2, i: 0.01}
+        svh_hand_j3: { p: 100, d: 3, i: 0.01}
+        svh_hand_j4: { p: 100, d: 0, i: 0.01}
+        svh_hand_j14: { p: 100, d: 0, i: 0.01}
+        svh_hand_j15: { p: 100, d: 0, i: 0.01}
+        svh_hand_j12: { p: 100, d: 0, i: 0.01}
+        svh_hand_j16: { p: 100, d: 0, i: 0.01}
+        svh_hand_j13: { p: 100, d: 0, i: 0.01}
+        svh_hand_j17: { p: 100, d: 0, i: 0.01}
+        svh_hand_index_spread: { p: 100, d: 0, i: 0.01}
+        svh_hand_ring_spread: { p: 100, d: 0, i: 0.01}

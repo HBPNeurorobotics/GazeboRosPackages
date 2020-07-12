@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="sim" default="false"/>
+
+  <param name="/dvs_left/dvs_ros_driver/streaming_rate" value="60"/>
+  <param name="/dvs_right/dvs_ros_driver/streaming_rate" value="60"/>
+
+  <include file="$(find dvs_ros_driver)/launch/stereo.launch" unless="$(arg sim)"/>
+</launch>

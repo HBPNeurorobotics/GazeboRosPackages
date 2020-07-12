@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<launch>
+  <env name="ROSCONSOLE_CONFIG_FILE" value="$(find schunk_svh_driver)/etc/logging.config" />
+  <!-- global PARAMS Change here if needed -->
+  <arg name="gui" default="False" />
+  <arg name="autostart" default="True"/>
+  <arg name="serial_device" default="/dev/ttyUSB0"/>
+  <arg name="sim" default="false"/>
+  <arg name="logging_config" default="$(find schunk_svh_driver)/etc/logging.xml" />
+  <arg name="use_internal_logging" default="False"/>
+  <arg name="controller_config" default="$(find schunk_svh_driver)/etc/controller_user.yaml" />
+  <arg name="general_config" default="$(find schunk_svh_driver)/etc/svh.yaml" />
+  <arg name="name_prefix" default="svh_hand" />
+  <arg name="frequency" default="30" />
+  <arg name="maximal_force" default="0.9" />
+  <arg name="trajectory_controller_name" default="svh_pos_based_traj_controller_hand" />
+  <arg name="gazebo" default="false" />
+
+  <group ns="svh">
+    <remap from="robot_description" to="/robot_description"/>
+
+    <include unless="$(arg sim)"  file="$(find sacc_rec_grasp)/launch/include/svh_ros_control_hw_interface.launch">
+      <!-- real Hardware interface -->
+      <arg name="serial_device" value="$(arg serial_device)" />
+      <arg name="maximal_force" value="$(arg maximal_force)" />
+      <arg name="autostart" value="$(arg autostart)"/>
+      <arg name="trajectory_controller_name" value="$(arg trajectory_controller_name)" />
+      <arg name="name_prefix" value="$(arg name_prefix)" />
+    </include>
+
+    <group ns="svh_ros_control_node">
+      <group if="$(arg sim)">
+        <!-- simulation with ros control boilerplate -->
+        <param name="generic_hw_control_loop/loop_hz" value="100" />
+        <param name="generic_hw_control_loop/cycle_time_error_threshold" value="0.03" />
+        <param name="hardware_interface/sim_control_mode" value="0" />
+
+        <!-- Load hardware interface -->
+        <group unless="$(arg gazebo)">
+          <node name="svh_sim_hardware_interface" pkg="ros_control_boilerplate" type="sim_hw_main" output="screen"/>
+        </group>
+      </group>
+
+      <!-- ROS_Control Controllers -->
+      <rosparam file="$(find sacc_rec_grasp)/config/svh_controllers.yaml" command="load"/>
+      <node name="svh_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+            output="screen" args="--timeout 90
+                                  svh_joint_state_controller
+                                  $(arg trajectory_controller_name)
+                                  "/>
+      <node name="joint_state_relay" pkg="topic_tools" type="relay" args="joint_states /joint_states"/>
+    </group>
+  </group>
+
+</launch>

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- start websocket server -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch"/>
+  <!-- start video server -->
+  <node name="video_server" pkg="web_video_server" type="web_video_server"/>
+  <!-- start the html server -->
+  <node name="web_viewer" pkg="sacc_rec_grasp" type="web_viewer.py" output="screen"/>
+
+  <!-- visualization -->
+  <node name="dvs_renderer_left" pkg="dvs_renderer" type="dvs_renderer">
+    <param name="display_method" value="red-blue"/>
+    <remap from="events" to="/dvs_left/events" />
+    <remap from="dvs_rendering" to="web_rendering_left" />
+  </node>
+
+  <node name="dvs_renderer_right" pkg="dvs_renderer" type="dvs_renderer">
+    <param name="display_method" value="red-blue"/>
+    <remap from="events" to="/dvs_right/events" />
+    <remap from="dvs_rendering" to="web_rendering_right" />
+  </node>
+</launch>
