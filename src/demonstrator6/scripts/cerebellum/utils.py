@@ -1,4 +1,7 @@
-import queue
+try:
+   import queue
+except ImportError:
+   import Queue as queue
 import copy
 
 class TimeDelay:
