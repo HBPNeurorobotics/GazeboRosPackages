@@ -123,7 +123,7 @@ def main():
         load_controller = rospy.ServiceProxy(load_controller_service, LoadController)
 
         # switcher
-        rospy.loginfo("Controller hulala Spawner: Waiting for service "+switch_controller_service)
+        rospy.loginfo("Controller Spawner: Waiting for service "+switch_controller_service)
         rospy.wait_for_service(switch_controller_service, timeout=timeout)
         switch_controller = rospy.ServiceProxy(switch_controller_service, SwitchController)
 
