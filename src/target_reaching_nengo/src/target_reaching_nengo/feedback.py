@@ -28,7 +28,8 @@ class Feedback(object):
             for i in range (len(self.sensor_joints)):
                 self.threshold_mapping[0][sensor_joints[i]] = threshold[0][i]
                 self.threshold_mapping[1][sensor_joints[i]] = threshold[1][i]
-        self.feedback_data_pub = rospy.Publisher("/feedback_data_pub", String, queue_size = 1)
+        feedback_data_pub_topic = rospy.get_param('~feedback_data_pub_topic', '/feedback_data_pub')
+        self.feedback_data_pub = rospy.Publisher(feedback_data_pub_topic, String, queue_size = 1)
         self.joint_states_topic = rospy.get_param('~joint_states_topic', '/joint_states')
 
     def callback(self, data):

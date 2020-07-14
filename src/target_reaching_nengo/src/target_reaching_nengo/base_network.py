@@ -36,7 +36,8 @@ class Base_network():
         self.max_pos_delta = rospy.get_param('~max_pos_delta', 0.35)
         self.last_publishing_time = rospy.get_rostime()
         self.publishing_time_tolerance = rospy.get_param('~publishing_time_tolerance', 0.1)
-        self.base_network_class_data_pub = rospy.Publisher('/base_network_class_data_pub', String, queue_size=1)
+        base_network_class_data_pub_topic = rospy.get_param('~base_network_class_data_pub_topic', '/base_network_class_data_pub')
+        self.base_network_class_data_pub = rospy.Publisher(base_network_class_data_pub_topic, String, queue_size=1)
 
     def publish_topic(self, t, x):
         now = rospy.get_rostime()

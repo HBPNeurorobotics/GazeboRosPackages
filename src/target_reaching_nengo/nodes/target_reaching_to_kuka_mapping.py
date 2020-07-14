@@ -24,12 +24,12 @@ class TargetReachingToKUKAMapping:
         self.arm_1_joint_cmd_sub = rospy.Subscriber(arm_1_joint_cmd_pos_name, Float64, self.cmd_callback, callback_args="arm_1_joint", queue_size=1)
         self.arm_2_joint_cmd_sub = rospy.Subscriber(arm_2_joint_cmd_pos_name, Float64, self.cmd_callback, callback_args="arm_2_joint", queue_size=1)
         self.arm_3_joint_cmd_sub = rospy.Subscriber(arm_3_joint_cmd_pos_name, Float64, self.cmd_callback, callback_args="arm_3_joint", queue_size=1)
-        self.received_joint_cmds_pub = rospy.Publisher('/received_joint_cmds', String, queue_size=1)
+        self.received_joint_cmds_pub = rospy.Publisher('/iiwa/received_joint_cmds', String, queue_size=1)
         follow_joint_trajectory_param = rospy.get_param('~follow_joint_trajectory_param')
         self.arm_traj_client = actionlib.SimpleActionClient(follow_joint_trajectory_param, FollowJointTrajectoryAction)
         self.pos_diff_tolerance = rospy.get_param('~pos_diff_tolerance', 0.009)
         self.arm_3_joint_index = rospy.get_param('~arm_3_joint_index', 3)
-        self.move_to_standby_server = rospy.Service('/move_to_standby', Trigger, self._move_to_standby)
+        self.move_to_standby_server = rospy.Service('/iiwa/move_to_standby', Trigger, self._move_to_standby)
 
     def _move_to_standby(self, req):
         self.move_to_standby()

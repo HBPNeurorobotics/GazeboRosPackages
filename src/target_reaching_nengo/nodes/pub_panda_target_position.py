@@ -30,9 +30,9 @@ class PubKukaTarget:
         pred_pos_topic = rospy.get_param('~pred_pos_topic', '/pred_pos')
         self.pred_pos_sub = rospy.Subscriber(pred_pos_topic, Float32MultiArray, self.pred_pos_cb, queue_size=1)
 
-        self.error = None
-        error_topic = rospy.get_param('~error_topic', '/error')
-        self.error_sub = rospy.Subscriber(error_topic, Float64MultiArray, self.error_cb, queue_size=1)
+        #self.error = None
+        #error_topic = rospy.get_param('~error_topic', '/error')
+        #self.error_sub = rospy.Subscriber(error_topic, Float64MultiArray, self.error_cb, queue_size=1)
 
         target_position_topic = rospy.get_param('~target_position_topic', '/target_position')
         self.target_position_pub = rospy.Publisher(target_position_topic, PointStamped, queue_size=1)
@@ -43,13 +43,13 @@ class PubKukaTarget:
             self.world_offset_y = -0.6
             self.world_offset_z = 0.6
 
-        gripper_left_topic = rospy.get_param('~gripper_left_topic', '/iiwa/gripper_left_effort_controller/command')
-        gripper_right_topic = rospy.get_param('~gripper_right_topic', '/iiwa/gripper_right_effort_controller/command')
-        self.gripper_left_pub = rospy.Publisher(gripper_left_topic, Float64, queue_size=1)
-        self.gripper_right_pub = rospy.Publisher(gripper_right_topic, Float64, queue_size=1)
+        #gripper_left_topic = rospy.get_param('~gripper_left_topic', '/iiwa/gripper_left_effort_controller/command')
+        #gripper_right_topic = rospy.get_param('~gripper_right_topic', '/iiwa/gripper_right_effort_controller/command')
+        #self.gripper_left_pub = rospy.Publisher(gripper_left_topic, Float64, queue_size=1)
+        #self.gripper_right_pub = rospy.Publisher(gripper_right_topic, Float64, queue_size=1)
 
-        self.set_standby_target_server = rospy.Service('/iiwa/set_standby_target', Trigger, self.set_standby_target)
-        self.remove_standby_target_server = rospy.Service('/iiwa/remove_standby_target', Trigger, self.remove_standby_target)
+        self.set_standby_target_server = rospy.Service('/panda/set_standby_target', Trigger, self.set_standby_target)
+        self.remove_standby_target_server = rospy.Service('/panda/remove_standby_target', Trigger, self.remove_standby_target)
 
     def set_standby_target(self, req):
         self.is_stanby_target = True
@@ -61,13 +61,13 @@ class PubKukaTarget:
         self.target_position = None
         return {'success': True, 'message': 'remove_standby_target'}
 
-    def open_gripper(self, cmd=-10.0):
-        self.gripper_left_pub.publish(cmd)
-        self.gripper_right_pub.publish(cmd)
+    #def open_gripper(self, cmd=-10.0):
+        #self.gripper_left_pub.publish(cmd)
+        #self.gripper_right_pub.publish(cmd)
 
-    def close_gripper(self, cmd=10.0):
-        self.gripper_left_pub.publish(cmd)
-        self.gripper_right_pub.publish(cmd)
+    #def close_gripper(self, cmd=10.0):
+        #self.gripper_left_pub.publish(cmd)
+        #self.gripper_right_pub.publish(cmd)
 
     def subtract_world_offset(self, position):
         position[0] -= self.world_offset_x
@@ -89,13 +89,13 @@ class PubKukaTarget:
         #if gazebo_target_position is not None:
             #self.target_position = to_point_stamped(self.gazebo_pos_frame, gazebo_target_position)
 
-    def error_cb(self, data):
-        self.error = data.data
-        has_error = any(self.error)
-        if not has_error and self.target_position is not None and not self.is_stanby_target:
-            self.close_gripper()
-        else:
-            self.open_gripper()
+    #def error_cb(self, data):
+        #self.error = data.data
+        #has_error = any(self.error)
+        #if not has_error and self.target_position is not None and not self.is_stanby_target:
+            #self.close_gripper()
+        #else:
+            #self.open_gripper()
 
     def pred_pos_cb(self, data):
         predictions = [e for e in data.data if e == e]
