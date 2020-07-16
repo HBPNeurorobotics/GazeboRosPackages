@@ -1,13 +1,6 @@
 <?xml version="1.0"?>
 <robot name="ur5e"
        xmlns:xacro="http://www.ros.org/wiki/xacro">
-
   <xacro:include filename="$(find ur_e_description)/urdf/ur5e_joint_limited_robot.urdf.xacro" />
-
-  <!-- load the SVH hand -->
-  <!--<xacro:include filename="$(find schunk_svh_description)/urdf/svh.urdf.xacro" />
-  <xacro:svh parent="tool0" name="svh_hand" side="-1" robot_namespace="/svh/svh_ros_control_node">
-    <origin xyz="0 0 0"  rpy= "0 0 0" />
-  </xacro:svh>-->
-
+  <xacro:include filename="$(find demonstrator6_description)/urdf/ur5e/gripper_ur5e.urdf.xacro" />
 </robot>
