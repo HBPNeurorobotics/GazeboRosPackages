@@ -18,7 +18,7 @@
   <arg name="next_pos_delta_factor" default="0.7" />
   <arg name="map_phi_to_2pi" default="False" />
   <arg name="pred_pos_frame" default="iiwa_link_0" />
-  <arg name="pred_pos_topic" default="/iiwa/pred_pos" />
+  <arg name="pred_pos_topic" default="/pred_pos_0" />
   <arg name="target_position_topic" default="/iiwa/target_position" />
   <arg name="error_topic" default="/iiwa/error" />
   <arg name="sphere_marker_pub_topic" default="/iiwa/sphere_marker" />

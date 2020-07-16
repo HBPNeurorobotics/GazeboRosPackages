@@ -11,7 +11,7 @@ def to_point_stamped(frame_id, position):
                         frame_id=frame_id),
                         point=position)
 
-class PubKukaTarget:
+class PubPandaTarget:
     def __init__(self):
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
@@ -131,7 +131,7 @@ class PubKukaTarget:
 
 if __name__== '__main__':
     rospy.init_node('pub_target')
-    pub_target = PubKukaTarget()
+    pub_target = PubPandaTarget()
 
     rate = rospy.Rate(30)
     while not rospy.is_shutdown():

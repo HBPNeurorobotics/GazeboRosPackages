@@ -8,7 +8,7 @@ from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryG
 from trajectory_msgs.msg import JointTrajectoryPoint
 from std_srvs.srv import Trigger
 
-class TargetReachingToLWA4PMapping:
+class TargetReachingToUR5EMapping:
     def __init__(self):
         self.has_joint_state = False
         self.has_joint_cmd = False
@@ -24,12 +24,12 @@ class TargetReachingToLWA4PMapping:
         self.arm_1_joint_cmd_sub = rospy.Subscriber(arm_1_joint_cmd_pos_name, Float64, self.cmd_callback, callback_args="arm_1_joint", queue_size=1)
         self.arm_2_joint_cmd_sub = rospy.Subscriber(arm_2_joint_cmd_pos_name, Float64, self.cmd_callback, callback_args="arm_2_joint", queue_size=1)
         self.arm_3_joint_cmd_sub = rospy.Subscriber(arm_3_joint_cmd_pos_name, Float64, self.cmd_callback, callback_args="arm_3_joint", queue_size=1)
-        self.received_joint_cmds_pub = rospy.Publisher('/received_joint_cmds', String, queue_size=1)
+        self.received_joint_cmds_pub = rospy.Publisher('/ur5e/received_joint_cmds', String, queue_size=1)
         follow_joint_trajectory_param = rospy.get_param('~follow_joint_trajectory_param')
         self.arm_traj_client = actionlib.SimpleActionClient(follow_joint_trajectory_param, FollowJointTrajectoryAction)
         self.pos_diff_tolerance = rospy.get_param('~pos_diff_tolerance', 0.009)
         self.arm_3_joint_index = rospy.get_param('~arm_3_joint_index', 3)
-        self.move_to_standby_server = rospy.Service('/move_to_standby', Trigger, self._move_to_standby)
+        self.move_to_standby_server = rospy.Service('/ur5e/move_to_standby', Trigger, self._move_to_standby)
         #self.nengo_joint_cmds_pub = rospy.Publisher('/nengo_joint_cmds', String, queue_size=1)
 
     def _move_to_standby(self, req):
@@ -81,6 +81,8 @@ class TargetReachingToLWA4PMapping:
             positions_to_send[1] = self.arm_joint_cmds["arm_2_joint"]
         if "arm_3_joint" in self.arm_joint_cmds:
             positions_to_send[self.arm_3_joint_index - 1] = self.arm_joint_cmds["arm_3_joint"]
+        # Trying to change gripper orientation
+        positions_to_send[len(self.joint_names) - 2] = 1.7
         #for i in range(3,6):
             #positions_to_send[i] = 0.0
         #if self.last_positions_to_send:
@@ -102,9 +104,9 @@ class TargetReachingToLWA4PMapping:
         self.arm_traj_client.send_goal(arm_goal)
 
 def main(argv=None):
-    rospy.init_node("TargetReachingToLWA4PMapping")
-    mapping = TargetReachingToLWA4PMapping()
-    rospy.loginfo("TargetReachingToLWA4PMapping initialized")
+    rospy.init_node("TargetReachingToUR5EMapping")
+    mapping = TargetReachingToUR5EMapping()
+    rospy.loginfo("TargetReachingToUR5EMapping initialized")
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         mapping.send_arm_trajectory()

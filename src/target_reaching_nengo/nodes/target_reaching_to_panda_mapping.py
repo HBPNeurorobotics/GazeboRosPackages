@@ -8,7 +8,7 @@ from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryG
 from trajectory_msgs.msg import JointTrajectoryPoint
 from std_srvs.srv import Trigger
 
-class TargetReachingToKUKAMapping:
+class TargetReachingToPandaMapping:
     def __init__(self):
         self.has_joint_state = False
         self.has_joint_cmd = False
@@ -93,9 +93,9 @@ class TargetReachingToKUKAMapping:
         self.arm_traj_client.send_goal(arm_goal)
 
 def main(argv=None):
-    rospy.init_node("TargetReachingToKUKAMapping")
-    mapping = TargetReachingToKUKAMapping()
-    rospy.loginfo("TargetReachingToKUKAMapping initialized")
+    rospy.init_node("TargetReachingToPandaMapping")
+    mapping = TargetReachingToPandaMapping()
+    rospy.loginfo("TargetReachingToPandaMapping initialized")
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         mapping.send_arm_trajectory()
