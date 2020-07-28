@@ -146,10 +146,10 @@ class Error(object):
         return [r, theta, phi]
 
     def calc_dif(self):
-        dif = [self.subject.polar_pos[0] - self.tcp.polar_pos[0],  # r
-               self.subject.polar_pos[1] - self.tcp.polar_pos[1],  #theta
-               self.subject.polar_pos[2] - self.tcp.polar_pos[2]]  #phi
-        return dif
+        r_diff = self.subject.polar_pos[0] - self.tcp.polar_pos[0]
+        theta_diff = r_diff * (self.subject.polar_pos[1] - self.tcp.polar_pos[1])
+        phi_diff = r_diff * (self.subject.polar_pos[2] - self.tcp.polar_pos[2])
+        return [r_diff, theta_diff, phi_diff]
 
     def calc_error(self):
         error = [0,0,0]
