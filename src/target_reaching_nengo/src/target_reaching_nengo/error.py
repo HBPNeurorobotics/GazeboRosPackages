@@ -147,8 +147,8 @@ class Error(object):
 
     def calc_dif(self):
         r_diff = self.subject.polar_pos[0] - self.tcp.polar_pos[0]
-        theta_diff = r_diff * (self.subject.polar_pos[1] - self.tcp.polar_pos[1])
-        phi_diff = r_diff * (self.subject.polar_pos[2] - self.tcp.polar_pos[2])
+        theta_diff = self.subject.polar_pos[0] * (self.subject.polar_pos[1] - self.tcp.polar_pos[1])
+        phi_diff = self.subject.polar_pos[0] * (self.subject.polar_pos[2] - self.tcp.polar_pos[2])
         return [r_diff, theta_diff, phi_diff]
 
     def calc_error(self):
