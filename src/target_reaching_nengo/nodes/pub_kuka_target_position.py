@@ -16,10 +16,12 @@ class PubKukaTarget:
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
-        #self.target_points = [Point(0.25, -0.6, 0.5), Point(0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
         #self.target_points = [Point(0.25, -0.6, 0.1), Point(0.25, -0.6, 0.5), Point(-0.25, -0.6, 0.5), Point(-0.25, -0.6, 0.1)]
         #self.target_points = [Point(0.25, -0.9, 0.1), Point(0.25, -0.9, 0.5), Point(-0.25, -0.9, 0.5), Point(-0.25, -0.9, 0.1)]
-        self.target_points = [Point(0.25, -0.6, 0.5), Point(0.1, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
+        quadrat_points = [Point(0.25, -0.6, 0.5), Point(0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
+        triangle_points = [Point(0.25, -0.6, 0.5), Point(0.1, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
+        error_experiment_points = [Point(0.25, -0.6, 0.5)]
+        self.target_points = error_experiment_points
         self.current_target_position = 0
         self.using_target_points = rospy.get_param('~using_target_points', True)
         self.waiting_for_next_position = False
@@ -39,7 +41,7 @@ class PubKukaTarget:
         target_position_topic = rospy.get_param('~target_position_topic', '/target_position')
         self.target_position_pub = rospy.Publisher(target_position_topic, PointStamped, queue_size=1)
 
-        self.should_subtract_world_offset = rospy.get_param('should_subtract_world_offset', True)
+        self.should_subtract_world_offset = rospy.get_param('~should_subtract_world_offset', True)
         if self.should_subtract_world_offset:
             self.world_offset_x = 1.0
             self.world_offset_y = -0.6

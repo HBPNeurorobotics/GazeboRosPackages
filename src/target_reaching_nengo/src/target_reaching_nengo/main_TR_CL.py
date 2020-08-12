@@ -38,7 +38,7 @@ class Main_TR_CL:
         near_far = Voluntary(slider = 2, joints = voluntary_joints[2], start = near_far_lower_limit,
                              end = near_far_upper_limit,  label = 'near_far', neuron_number = neuron_number)
 
-        err = 0.05
+        err = rospy.get_param('~error_threshold', 0.05)
         self.error = Error(subject_name = 'target_reaching_subject', threshold = [ [-err, err],  [-err, err], [-err, err]])
 
         base_network.feedback = Feedback(neuron_number = neuron_number)

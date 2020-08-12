@@ -30,22 +30,17 @@ class TargetReachingToKUKAMapping:
         self.pos_diff_tolerance = rospy.get_param('~pos_diff_tolerance', 0.009)
         self.arm_3_joint_index = rospy.get_param('~arm_3_joint_index', 3)
         self.move_to_standby_server = rospy.Service('/iiwa/move_to_standby', Trigger, self._move_to_standby)
+        self.is_moving_to_standby = False
+        self.move_to_standby_positions = [0.0 for i in range(len(self.joint_names))]
 
     def _move_to_standby(self, req):
         self.move_to_standby()
-        self.arm_traj_client.wait_for_result()
         return {'success': True, 'message': 'Moved to standby'}
 
     def move_to_standby(self, duration=0.5):
+        self.is_moving_to_standby = True
+        arm_goal = self.get_arm_traj_goal(self.move_to_standby_positions)
         self.arm_traj_client.cancel_all_goals()
-        positions_to_send = [0.0 for i in range(len(self.joint_names))]
-        arm_goal = FollowJointTrajectoryGoal()
-        arm_goal.trajectory.joint_names = self.joint_names
-        waypoint = JointTrajectoryPoint()
-        for i in range(len(self.joint_names)):
-            waypoint.positions = positions_to_send
-        waypoint.time_from_start = rospy.Duration.from_sec(duration)
-        arm_goal.trajectory.points.append(waypoint)
         self.arm_traj_client.send_goal(arm_goal)
 
     def cmd_callback(self, cmd, joint_name):
@@ -59,8 +54,15 @@ class TargetReachingToKUKAMapping:
                     self.last_joint_state[i] = joint_state.position[j]
                     self.has_joint_state = True
 
-    def send_arm_trajectory(self, duration=0.5):
-        if not self.has_joint_state or not self.has_joint_cmd:
+    def send_arm_trajectory(self):
+        if not self.has_joint_state:
+            return
+        if self.is_moving_to_standby:
+            pos_diff = list(map(lambda x,y:abs(x-y), self.last_joint_state, self.move_to_standby_positions))
+            if all([p < 0.01 for p in pos_diff]):
+                self.is_moving_to_standby = False
+            return
+        if not self.has_joint_cmd:
             return
         positions_to_send = self.last_joint_state
         if "arm_1_joint" in self.arm_joint_cmds:
@@ -81,6 +83,11 @@ class TargetReachingToKUKAMapping:
         to_pub = "self.arm_joint_cmds: {}, pos to send: {}".format(self.arm_joint_cmds, positions_to_send)
         self.received_joint_cmds_pub.publish(to_pub)
         self.arm_joint_cmds = {}
+        arm_goal = self.get_arm_traj_goal(positions_to_send)
+        self.arm_traj_client.cancel_all_goals()
+        self.arm_traj_client.send_goal(arm_goal)
+
+    def get_arm_traj_goal(self, positions_to_send, duration=0.5):
         arm_goal = FollowJointTrajectoryGoal()
         arm_goal.trajectory.joint_names = self.joint_names
         waypoint = JointTrajectoryPoint()
@@ -88,8 +95,7 @@ class TargetReachingToKUKAMapping:
             waypoint.positions = positions_to_send
         waypoint.time_from_start = rospy.Duration.from_sec(duration)
         arm_goal.trajectory.points.append(waypoint)
-        self.arm_traj_client.cancel_all_goals()
-        self.arm_traj_client.send_goal(arm_goal)
+        return arm_goal
 
 def main(argv=None):
     rospy.init_node("TargetReachingToKUKAMapping")
