@@ -16,23 +16,22 @@ class PubPandaTarget:
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
-        self.standby_target = Point(0.1, -0.5, 0.65)
+        self.target_points = [Point(0.25, -0.6, 0.4), Point(0.1, -0.6, 0.8), Point(-0.25, -0.6, 0.4)]
+        self.current_target_position = 0
+        self.using_target_points = rospy.get_param('~using_target_points', True)
+        self.waiting_for_next_position = False
+        self.waiting_start_time = None
+        self.next_target_waiting_seconds = rospy.get_param('~next_target_waiting_seconds', 3.0)
+        self.standby_target = self.target_points[self.current_target_position]
         self.is_stanby_target = True
         self.target_position = to_point_stamped(self.pred_pos_frame, self.standby_target)
-
-        #self.target_base_x = rospy.get_param('~target_base_x', 1.0)
-        #self.target_base_y = rospy.get_param('~target_base_y', -0.6)
-        #self.target_base_z = rospy.get_param('~target_base_z', 0.6)
-
-        #self.gazebo_target_link_name = rospy.get_param('~gazebo_target_link_name', 'ball::ball')
-        #self.get_model_state = rospy.Subscriber('/gazebo/link_states', LinkStates, self.gazebo_link_states_cb, queue_size=1)
 
         pred_pos_topic = rospy.get_param('~pred_pos_topic', '/pred_pos')
         self.pred_pos_sub = rospy.Subscriber(pred_pos_topic, Float32MultiArray, self.pred_pos_cb, queue_size=1)
 
-        #self.error = None
-        #error_topic = rospy.get_param('~error_topic', '/error')
-        #self.error_sub = rospy.Subscriber(error_topic, Float64MultiArray, self.error_cb, queue_size=1)
+        self.error = None
+        error_topic = rospy.get_param('~error_topic', '/error')
+        self.error_sub = rospy.Subscriber(error_topic, Float64MultiArray, self.error_cb, queue_size=1)
 
         target_position_topic = rospy.get_param('~target_position_topic', '/target_position')
         self.target_position_pub = rospy.Publisher(target_position_topic, PointStamped, queue_size=1)
@@ -42,11 +41,6 @@ class PubPandaTarget:
             self.world_offset_x = 1.0
             self.world_offset_y = -0.6
             self.world_offset_z = 0.6
-
-        #gripper_left_topic = rospy.get_param('~gripper_left_topic', '/iiwa/gripper_left_effort_controller/command')
-        #gripper_right_topic = rospy.get_param('~gripper_right_topic', '/iiwa/gripper_right_effort_controller/command')
-        #self.gripper_left_pub = rospy.Publisher(gripper_left_topic, Float64, queue_size=1)
-        #self.gripper_right_pub = rospy.Publisher(gripper_right_topic, Float64, queue_size=1)
 
         self.set_standby_target_server = rospy.Service('/panda/set_standby_target', Trigger, self.set_standby_target)
         self.remove_standby_target_server = rospy.Service('/panda/remove_standby_target', Trigger, self.remove_standby_target)
@@ -61,14 +55,6 @@ class PubPandaTarget:
         self.target_position = None
         return {'success': True, 'message': 'remove_standby_target'}
 
-    #def open_gripper(self, cmd=-10.0):
-        #self.gripper_left_pub.publish(cmd)
-        #self.gripper_right_pub.publish(cmd)
-
-    #def close_gripper(self, cmd=10.0):
-        #self.gripper_left_pub.publish(cmd)
-        #self.gripper_right_pub.publish(cmd)
-
     def subtract_world_offset(self, position):
         position[0] -= self.world_offset_x
         position[1] -= self.world_offset_y
@@ -77,25 +63,23 @@ class PubPandaTarget:
         position[2] += 0.15
         return position
 
-    #def gazebo_link_states_cb(self, link_states):
-        #gazebo_target_position = None
-        #try:
-            #gazebo_target_position = link_states.pose[link_states.name.index(self.gazebo_target_link_name)].position
-            #gazebo_target_position.x -= self.target_base_x
-            #gazebo_target_position.y -= self.target_base_y
-            #gazebo_target_position.z -= self.target_base_z
-        #except ValueError as e:
-            #rospy.loginfo(str(e))
-        #if gazebo_target_position is not None:
-            #self.target_position = to_point_stamped(self.gazebo_pos_frame, gazebo_target_position)
+    def error_cb(self, data):
+        self.error = data.data
+        has_error = any(self.error)
+        if has_error:
+            return
+        if self.waiting_for_next_position:
+            now = rospy.Time.now()
+            if (now - self.waiting_start_time) > rospy.Duration(self.next_target_waiting_seconds):
+                self.next_target_position()
+        else:
+            self.waiting_for_next_position = True
+            self.waiting_start_time = rospy.Time.now()
 
-    #def error_cb(self, data):
-        #self.error = data.data
-        #has_error = any(self.error)
-        #if not has_error and self.target_position is not None and not self.is_stanby_target:
-            #self.close_gripper()
-        #else:
-            #self.open_gripper()
+    def next_target_position(self):
+        self.waiting_for_next_position = False
+        self.current_target_position = (self.current_target_position + 1) % len(self.target_points)
+        self.target_position.point = self.target_points[self.current_target_position]
 
     def pred_pos_cb(self, data):
         predictions = [e for e in data.data if e == e]
@@ -106,21 +90,11 @@ class PubPandaTarget:
         if self.target_position is not None:
             return
 
-        #pred_pos = predictions[0:3]
         if self.should_subtract_world_offset:
             pred_pos = self.subtract_world_offset(pred_pos)
         rospy.loginfo("pred_pos: {}".format(pred_pos))
         if pred_pos[0] < -0.71:
             return
-        #if len(predictions) >= 10:
-            #if pred_pos[0] > 0.5 or (self.error and self.error[0] < 3):
-                #index = int(0.7 * len(predictions))
-                #pred_pos = predictions[index:index+3]
-            #if self.error and self.error[0] < 2:
-                #index = int(0.3 * len(predictions))
-                #pred_pos = predictions[index:index+3]
-        # TODO: remove this magic number here
-        #pred_pos_pt = Point(pred_pos[0]+0.6, pred_pos[1], pred_pos[2])
         pred_pos_pt = Point(0.01, pred_pos[1], pred_pos[2])
         rospy.loginfo("pred_pos_pt: {}".format(pred_pos_pt))
         self.target_position = to_point_stamped(self.pred_pos_frame, pred_pos_pt)

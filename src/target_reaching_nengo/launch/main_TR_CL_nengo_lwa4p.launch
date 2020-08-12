@@ -16,6 +16,8 @@
   <arg name="arm_3_joint_index" default="3" />
   <arg name="follow_joint_trajectory_param" default="/arm/arm_eff_traj_controller/follow_joint_trajectory" />
   <arg name="next_pos_delta_factor" default="0.7" />
+  <arg name="next_pos_error_factor" default="0.33" />
+  <arg name="max_pos_delta" default="0.35" />
   <arg name="map_phi_to_2pi" default="True" />
   <arg name="pred_pos_frame" default="arm_base_link" />
   <arg name="pred_pos_topic" default="/pred_pos_2" />
@@ -25,10 +27,22 @@
   <arg name="base_network_class_data_pub_topic" default="/lwa4p/base_network_class_data_pub_topic" />
   <arg name="error_class_data_topic" default="/lwa4p/error_class_data_topic" />
   <arg name="feedback_data_pub_topic" default="/lwa4p/feedback_data_pub_topic" />
+  <arg name="gazebo_target_model_name" default="unit_sphere_2" />
+  <arg name="gazebo_target_base_x" default="1.0" />
+  <arg name="gazebo_target_base_y" default="-3.6" />
+  <arg name="gazebo_target_base_z" default="0.6" />
 
   <node name="pub_lwa4p_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen">
     <param name="target_position_topic" value="$(arg target_position_topic)" />
     <param name="sphere_marker_pub_topic" value="$(arg sphere_marker_pub_topic)" />
+  </node>
+
+  <node name="pub_lwa4p_target_as_gazebo_sphere" pkg="target_reaching_nengo" type="pub_target_pos_as_gazebo_sphere.py" output="screen">
+    <param name="target_position_topic" value="$(arg target_position_topic)" />
+    <param name="gazebo_target_model_name" value="$(arg gazebo_target_model_name)" />
+    <param name="gazebo_target_base_x" value="$(arg gazebo_target_base_x)" />
+    <param name="gazebo_target_base_y" value="$(arg gazebo_target_base_y)" />
+    <param name="gazebo_target_base_z" value="$(arg gazebo_target_base_z)" />
   </node>
 
   <node name="pub_lwa4p_pred_pos_as_target" pkg="target_reaching_nengo" type="pub_lwa4p_target_position.py" output="screen">

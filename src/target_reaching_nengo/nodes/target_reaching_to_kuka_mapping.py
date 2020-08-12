@@ -70,7 +70,7 @@ class TargetReachingToKUKAMapping:
         if "arm_3_joint" in self.arm_joint_cmds:
             positions_to_send[self.arm_3_joint_index - 1] = self.arm_joint_cmds["arm_3_joint"]
         #TODO: remove this hack for moving 7th joint
-        positions_to_send[len(positions_to_send)-1] = -1.7
+        positions_to_send[len(positions_to_send)-1] = 3.1
         #for i in range(3,6):
             #positions_to_send[i] = 0.0
         #if self.last_positions_to_send:

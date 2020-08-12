@@ -82,7 +82,9 @@ class TargetReachingToUR5EMapping:
         if "arm_3_joint" in self.arm_joint_cmds:
             positions_to_send[self.arm_3_joint_index - 1] = self.arm_joint_cmds["arm_3_joint"]
         # Trying to change gripper orientation
-        positions_to_send[len(self.joint_names) - 2] = 1.7
+        positions_to_send[len(self.joint_names) - 2] = -1.7
+        positions_to_send[len(self.joint_names) - 3] = -1.7
+        positions_to_send[len(self.joint_names) - 1] = 0.
         #for i in range(3,6):
             #positions_to_send[i] = 0.0
         #if self.last_positions_to_send:
