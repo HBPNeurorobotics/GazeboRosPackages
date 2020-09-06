@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <contributor>
+      <author>Blender User</author>
+      <authoring_tool>Blender 2.77.0 commit date:2016-04-05, commit time:18:12, hash:abf6f08</authoring_tool>
+    </contributor>
+    <created>2017-05-11T13:59:24</created>
+    <modified>2017-05-11T13:59:24</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_images>
+    <image id="PBRFULL_Hand-material_Base_Color_jpg" name="PBRFULL_Hand-material_Base_Color_jpg">
+      <init_from>PBRFULL_Hand-material_Base_Color.jpg</init_from>
+    </image>
+  </library_images>
+  <library_effects>
+    <effect id="PBRFULL_Hand-effect">
+      <profile_COMMON>
+        <newparam sid="PBRFULL_Hand-material_Base_Color_jpg-surface">
+          <surface type="2D">
+            <init_from>PBRFULL_Hand-material_Base_Color_jpg</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="PBRFULL_Hand-material_Base_Color_jpg-sampler">
+          <sampler2D>
+            <source>PBRFULL_Hand-material_Base_Color_jpg-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <ambient>
+              <color sid="ambient">0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <texture texture="PBRFULL_Hand-material_Base_Color_jpg-sampler"/>
+            </diffuse>
+            <specular>
+              <color sid="specular">0.5 0.5 0.5 1</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">50</float>
+            </shininess>
+            <index_of_refraction>
+              <float sid="index_of_refraction">1</float>
+            </index_of_refraction>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_materials>
+    <material id="PBRFULL_Hand-material" name="PBRFULL_Hand">
+      <instance_effect url="#PBRFULL_Hand-effect"/>
+    </material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="Cube_001-mesh" name="Cube.001">
+      <mesh>
+        <source id="Cube_001-mesh-positions">
+          <float_array id="Cube_001-mesh-positions-array" count="36">0.02990978 0.02817583 -0.0119999 0.02990978 -0.02817583 -0.0119999 -0.02990978 -0.02817583 -0.01199996 -0.02990978 0.02817583 -0.01199996 0.03449988 0.03249984 0.01199996 0.03449988 -0.03249984 0.01199996 -0.0345 -0.03249979 0.0119999 -0.03449994 0.03249984 0.0119999 -0.03449994 -0.03249984 -0.001407265 -0.03449994 0.03249984 -0.001407265 0.03449988 0.03249984 -0.001109242 0.03449988 -0.03249984 -0.001109182</float_array>
+          <technique_common>
+            <accessor source="#Cube_001-mesh-positions-array" count="12" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Cube_001-mesh-normals">
+          <float_array id="Cube_001-mesh-normals-array" count="51">-1.81697e-7 0 1 0.9214963 0 -0.3883872 0 -0.925833 -0.377933 -0.917555 0 -0.3976089 0 1 0 2.41745e-7 0 -1 0 0.9258318 -0.3779358 1 0 0 -3.8873e-7 -1 2.87923e-6 -1 9.35096e-7 0 -1.48266e-7 0 1 0.9214966 -1.51543e-7 -0.3883865 0.001596093 -0.9291898 -0.3695996 -0.9175552 0 -0.3976086 0.00159651 0.9291897 -0.3695999 -8.63836e-7 -1 0 -1 3.33963e-7 -3.05642e-6</float_array>
+          <technique_common>
+            <accessor source="#Cube_001-mesh-normals-array" count="17" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Cube_001-mesh-map-0">
+          <float_array id="Cube_001-mesh-map-0-array" count="120">0.5662198 0.396764 0.8793937 0.1534894 0.8604066 0.436376 0.4843459 0.9444727 0.1221302 0.8758266 0.4166997 0.8675611 0.1221302 0.8758266 0.03336817 0.4930275 0.1136748 0.5700201 0.03336817 0.4930275 0.4005825 0.5606421 0.1136748 0.5700201 0.9599823 0.5558755 0.5662198 0.396764 0.8604066 0.436376 0.1221302 0.8758266 0.4005825 0.5606421 0.4166997 0.8675611 0.4730118 0.4930272 0.4166997 0.8675611 0.4005825 0.5606421 0.9609032 0.07040798 0.8604066 0.436376 0.8793937 0.1534894 0.9609032 0.07040798 0.5837631 0.1126123 0.4933904 0.03162449 0.4933904 0.4579337 0.5837631 0.1126123 0.5662198 0.396764 0.5662198 0.396764 0.5837631 0.1126123 0.8793937 0.1534894 0.4843459 0.9444727 0.05931955 0.9428267 0.1221302 0.8758266 0.1221302 0.8758266 0.05931955 0.9428267 0.03336817 0.4930275 0.03336817 0.4930275 0.4730118 0.4930272 0.4005825 0.5606421 0.9599823 0.5558755 0.4933904 0.4579337 0.5662198 0.396764 0.1221302 0.8758266 0.1136748 0.5700201 0.4005825 0.5606421 0.4730118 0.4930272 0.4843459 0.9444727 0.4166997 0.8675611 0.9609032 0.07040798 0.9599823 0.5558755 0.8604066 0.436376 0.9609032 0.07040798 0.8793937 0.1534894 0.5837631 0.1126123 0.4933904 0.4579337 0.4933904 0.03162449 0.5837631 0.1126123</float_array>
+          <technique_common>
+            <accessor source="#Cube_001-mesh-map-0-array" count="60" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Cube_001-mesh-vertices">
+          <input semantic="POSITION" source="#Cube_001-mesh-positions"/>
+        </vertices>
+        <polylist material="PBRFULL_Hand-material" count="20">
+          <input semantic="VERTEX" source="#Cube_001-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Cube_001-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Cube_001-mesh-map-0" offset="2" set="0"/>
+          <vcount>3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 </vcount>
+          <p>7 0 0 5 0 1 4 0 2 10 1 3 1 1 4 0 1 5 1 2 6 8 2 7 2 2 8 8 3 9 3 3 10 2 3 11 10 4 12 7 4 13 4 4 14 1 5 15 3 5 16 0 5 17 9 6 18 0 6 19 3 6 20 11 7 21 4 7 22 5 7 23 11 8 24 6 8 25 8 8 26 9 9 27 6 9 28 7 9 29 7 10 30 6 10 31 5 10 32 10 11 33 11 11 34 1 11 35 1 12 36 11 12 37 8 12 38 8 13 39 9 13 40 3 13 41 10 4 42 9 4 43 7 4 44 1 5 45 2 5 46 3 5 47 9 14 48 10 14 49 0 14 50 11 7 51 10 7 52 4 7 53 11 15 54 5 15 55 6 15 56 9 16 57 8 16 58 6 16 59</p>
+        </polylist>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_controllers/>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="l_hand" name="l_hand" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <node id="l_hand_mesh" name="l_hand_mesh" type="NODE">
+          <matrix sid="transform">1 0 0 -0.0345 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+          <instance_geometry url="#Cube_001-mesh" name="l_hand_mesh">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="PBRFULL_Hand-material" target="#PBRFULL_Hand-material"/>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+        </node>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene"/>
+  </scene>
+</COLLADA>

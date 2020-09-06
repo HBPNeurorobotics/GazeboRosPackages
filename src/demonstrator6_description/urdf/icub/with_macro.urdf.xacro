@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot name="iCub"
+       xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- World for Gazebo simulation -->
+  <link name ="world"/>
+  <link name ="icub_base_link"/>
+  <joint name="icub_base_joint" type="fixed">
+      <parent link="world" />
+      <child link = "icub_base_link" />
+<!--       <origin xyz="0 0 0" rpy="0 0 1.57079" /> -->
+<!--       <origin xyz="0 0 0" rpy="0 0 0" /> -->
+      <origin xyz="0 0 0" rpy="0 0 -1.57079" />
+  </joint>
+
+  <xacro:include filename="$(find demonstrator6_description)/urdf/icub/macro_icub.urdf.xacro" />
+  <!-- instantiate with a base link to attach it to -->
+  <xacro:icub parent="icub_base_link"/>
+
+</robot>

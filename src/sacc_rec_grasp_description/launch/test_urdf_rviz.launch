@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <launch>
   <param name="robot_description"
     command="$(find xacro)/xacro --inorder '$(find sacc_rec_grasp_description)/urdf/scene.urdf.xacro'" />
