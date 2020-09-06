@@ -11,16 +11,18 @@ def to_point_stamped(frame_id, position):
                         frame_id=frame_id),
                         point=position)
 
-class PubLWA4PTarget:
+class PubPandaTarget:
     def __init__(self):
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
-        scale = 0.5
-        kuka_quadrat_points = [Point(0.25, -0.6, 0.5), Point(0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
-        quadrat_points = [Point(p.x * scale, p.y * scale, p.z * scale) for p in kuka_quadrat_points]
-        triangle_points = [Point(0.25, -0.4, 0.4), Point(0.1, -0.4, 0.75), Point(-0.25, -0.4, 0.4)]
-        self.target_points = quadrat_points
+        #triangle_points = [Point(0.2, 0.25, 0.1), Point(0.2, 0.15, 0.13), Point(0.15, -0.1, 0.1)]
+        vertical_points = [Point(0.2, -0.2, 0.1), Point(0.2, -0.2, 0.15), Point(0.2, -0.2, 0.05)]
+        for point in vertical_points:
+            #point.x += -1.356
+            #point.y += 0.671
+            point.z += 0.617
+        self.target_points = vertical_points
         self.current_target_position = 0
         self.using_target_points = rospy.get_param('~using_target_points', True)
         self.waiting_for_next_position = False
@@ -46,8 +48,8 @@ class PubLWA4PTarget:
             self.world_offset_y = -0.6
             self.world_offset_z = 0.6
 
-        self.set_standby_target_server = rospy.Service('/lwa4p/set_standby_target', Trigger, self.set_standby_target)
-        self.remove_standby_target_server = rospy.Service('/lwa4p/remove_standby_target', Trigger, self.remove_standby_target)
+        self.set_standby_target_server = rospy.Service('/icub/set_standby_target', Trigger, self.set_standby_target)
+        self.remove_standby_target_server = rospy.Service('/icub/remove_standby_target', Trigger, self.remove_standby_target)
 
     def set_standby_target(self, req):
         self.is_stanby_target = True
@@ -62,9 +64,9 @@ class PubLWA4PTarget:
     def subtract_world_offset(self, position):
         position[0] -= self.world_offset_x
         position[1] -= self.world_offset_y
-        position[1] += 0.12
+        position[1] -= 0.02
         position[2] -= self.world_offset_z
-        position[2] += 0.08
+        position[2] += 0.15
         return position
 
     def error_cb(self, data):
@@ -109,7 +111,7 @@ class PubLWA4PTarget:
 
 if __name__== '__main__':
     rospy.init_node('pub_target')
-    pub_target = PubLWA4PTarget()
+    pub_target = PubPandaTarget()
 
     rate = rospy.Rate(30)
     while not rospy.is_shutdown():

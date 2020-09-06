@@ -31,7 +31,7 @@
   <arg name="gazebo_target_base_x" default="1.0" />
   <arg name="gazebo_target_base_y" default="-0.6" />
   <arg name="gazebo_target_base_z" default="0.6" />
-  <arg name="error_threshold" default="0.02" />
+  <arg name="error_threshold" default="0.07" />
 
   <node name="pub_kuka_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen">
     <param name="target_position_topic" value="$(arg target_position_topic)" />

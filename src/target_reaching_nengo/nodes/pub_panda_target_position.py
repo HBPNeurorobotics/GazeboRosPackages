@@ -17,7 +17,10 @@ class PubPandaTarget:
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
         triangle_points = [Point(0.25, -0.6, 0.4), Point(0.1, -0.6, 0.8), Point(-0.25, -0.6, 0.4)]
-        self.target_points = triangle_points
+        scale = 0.8
+        kuka_quadrat_points = [Point(0.25, -0.6, 0.5), Point(0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
+        quadrat_points = [Point(p.x * scale, p.y * scale, p.z * scale) for p in kuka_quadrat_points]
+        self.target_points = quadrat_points
         self.current_target_position = 0
         self.using_target_points = rospy.get_param('~using_target_points', True)
         self.waiting_for_next_position = False

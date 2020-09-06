@@ -20,8 +20,8 @@ class PubKukaTarget:
         #self.target_points = [Point(0.25, -0.9, 0.1), Point(0.25, -0.9, 0.5), Point(-0.25, -0.9, 0.5), Point(-0.25, -0.9, 0.1)]
         quadrat_points = [Point(0.25, -0.6, 0.5), Point(0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
         triangle_points = [Point(0.25, -0.6, 0.5), Point(0.1, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
-        error_experiment_points = [Point(0.25, -0.6, 0.5)]
-        self.target_points = error_experiment_points
+        error_experiment_points = [Point(0.25, -0.6, 0.7)]
+        self.target_points = quadrat_points
         self.current_target_position = 0
         self.using_target_points = rospy.get_param('~using_target_points', True)
         self.waiting_for_next_position = False

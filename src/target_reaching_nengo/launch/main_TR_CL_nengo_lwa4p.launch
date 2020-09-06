@@ -29,8 +29,10 @@
   <arg name="feedback_data_pub_topic" default="/lwa4p/feedback_data_pub_topic" />
   <arg name="gazebo_target_model_name" default="unit_sphere_2" />
   <arg name="gazebo_target_base_x" default="1.0" />
-  <arg name="gazebo_target_base_y" default="-3.6" />
+<!--   <arg name="gazebo_target_base_y" default="-3.6" /> -->
+  <arg name="gazebo_target_base_y" default="-0.6" />
   <arg name="gazebo_target_base_z" default="0.6" />
+  <arg name="error_threshold" default="0.07" />
 
   <node name="pub_lwa4p_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen">
     <param name="target_position_topic" value="$(arg target_position_topic)" />
@@ -74,6 +76,7 @@
     <param name="feedback_data_pub_topic" value="$(arg feedback_data_pub_topic)" />
     <param name="target_position_topic" value="$(arg target_position_topic)" />
     <param name="error_topic" value="$(arg error_topic)" />
+    <param name="error_threshold" value="$(arg error_threshold)" />
   </node>
 
   <node name="lwa4p_mapping" pkg="target_reaching_nengo" type="target_reaching_to_lwa4p_mapping.py" output="screen">

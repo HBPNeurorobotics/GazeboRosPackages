@@ -31,6 +31,14 @@ class Feedback(object):
         feedback_data_pub_topic = rospy.get_param('~feedback_data_pub_topic', '/feedback_data_pub')
         self.feedback_data_pub = rospy.Publisher(feedback_data_pub_topic, String, queue_size = 1)
         self.joint_states_topic = rospy.get_param('~joint_states_topic', '/joint_states')
+        self.is_icub = rospy.get_param('~is_icub', False)
+        if self.is_icub:
+            self.icub_sub = []
+            for i in range(len(self.arm.name)):
+                sub = rospy.Subscriber(self.arm.name[i], Float64, self.icub_callback, callback_args=i, queue_size=1)
+
+    def icub_callback(self, msg, joint_index):
+        self.arm.position[joint_index] = msg.data
 
     def callback(self, data):
         for i in range(len(self.arm.name)):
