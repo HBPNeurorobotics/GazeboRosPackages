@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find target_reaching_nengo)/launch/main_TR_CL_nengo_kuka_multi_robot_experiment.launch" />
+  <include file="$(find target_reaching_nengo)/launch/main_TR_CL_nengo_lwa4p_multi_robot_experiment.launch" />
+  <include file="$(find target_reaching_nengo)/launch/main_TR_CL_nengo_panda_multi_robot_experiment.launch" />
+  <include file="$(find target_reaching_nengo)/launch/main_TR_CL_nengo_ur5e_multi_robot_experiment.launch" />
+</launch>
