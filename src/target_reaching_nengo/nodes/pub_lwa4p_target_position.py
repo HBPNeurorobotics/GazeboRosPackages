@@ -16,59 +16,44 @@ class PubLWA4PTarget:
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
-        scale = 0.5
-        kuka_quadrat_points = [Point(0.25, -0.6, 0.5), Point(0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
-        quadrat_points = [Point(p.x * scale, p.y * scale, p.z * scale) for p in kuka_quadrat_points]
-        triangle_points = [Point(0.25, -0.4, 0.4), Point(0.1, -0.4, 0.75), Point(-0.25, -0.4, 0.4)]
-        self.target_points = quadrat_points
-        self.current_target_position = 0
-        self.using_target_points = rospy.get_param('~using_target_points', True)
-        self.waiting_for_next_position = False
-        self.waiting_start_time = None
-        self.next_target_waiting_seconds = rospy.get_param('~next_target_waiting_seconds', 3.0)
-        self.standby_target = self.target_points[self.current_target_position]
-        self.is_stanby_target = True
-        self.target_position = to_point_stamped(self.pred_pos_frame, self.standby_target)
+        self.target_points = None
+        if rospy.get_param('~is_quadrat_experiment', False):
+            scale = rospy.get_param('~scale_kuka_points', 0.5)
+            kuka_quadrat_points = [Point(0.25, -0.6, 0.5), Point(0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
+            self.target_points = [Point(p.x * scale, p.y * scale, p.z * scale) for p in kuka_quadrat_points]
+        if rospy.get_param('~is_multi_robot_experiment', False):
+            self.target_points = [Point(0.25, -0.4, 0.4), Point(0.1, -0.4, 0.75), Point(-0.25, -0.4, 0.4)]
 
-        pred_pos_topic = rospy.get_param('~pred_pos_topic', '/pred_pos')
-        self.pred_pos_sub = rospy.Subscriber(pred_pos_topic, Float32MultiArray, self.pred_pos_cb, queue_size=1)
-
+        self.standby_target = to_point_stamped(self.pred_pos_frame, Point(0.25, -0.6, 0.7))
         self.error = None
         error_topic = rospy.get_param('~error_topic', '/error')
         self.error_sub = rospy.Subscriber(error_topic, Float64MultiArray, self.error_cb, queue_size=1)
 
+        self.target_position = None
         target_position_topic = rospy.get_param('~target_position_topic', '/target_position')
         self.target_position_pub = rospy.Publisher(target_position_topic, PointStamped, queue_size=1)
 
-        self.should_subtract_world_offset = rospy.get_param('should_subtract_world_offset', True)
-        if self.should_subtract_world_offset:
-            self.world_offset_x = 1.0
-            self.world_offset_y = -0.6
-            self.world_offset_z = 0.6
+        self.using_target_points = self.target_points != None
+        if self.using_target_points:
+            self.current_target_position = 0
+            self.waiting_for_next_position = False
+            self.waiting_start_time = None
+            self.next_target_waiting_seconds = rospy.get_param('~next_target_waiting_seconds', 3.0)
+            self.target_position = to_point_stamped(self.pred_pos_frame, self.target_points[self.current_target_position])
 
         self.set_standby_target_server = rospy.Service('/lwa4p/set_standby_target', Trigger, self.set_standby_target)
         self.remove_standby_target_server = rospy.Service('/lwa4p/remove_standby_target', Trigger, self.remove_standby_target)
 
     def set_standby_target(self, req):
-        self.is_stanby_target = True
-        self.target_position = to_point_stamped(self.pred_pos_frame, self.standby_target)
+        self.target_position = self.standby_target
         return {'success': True, 'message': 'set_standby_target'}
 
     def remove_standby_target(self, req):
-        self.is_stanby_target = False
         self.target_position = None
         return {'success': True, 'message': 'remove_standby_target'}
 
-    def subtract_world_offset(self, position):
-        position[0] -= self.world_offset_x
-        position[1] -= self.world_offset_y
-        position[1] += 0.12
-        position[2] -= self.world_offset_z
-        position[2] += 0.08
-        return position
-
-    def error_cb(self, data):
-        self.error = data.data
+    def error_cb(self, msg):
+        self.error = msg.data
         has_error = any(self.error)
         if has_error:
             return
@@ -84,24 +69,6 @@ class PubLWA4PTarget:
         self.waiting_for_next_position = False
         self.current_target_position = (self.current_target_position + 1) % len(self.target_points)
         self.target_position.point = self.target_points[self.current_target_position]
-
-    def pred_pos_cb(self, data):
-        predictions = [e for e in data.data if e == e]
-        if predictions == [] or len(predictions) < 3:
-            return
-        pred_pos = predictions[-3:]
-
-        if self.target_position is not None:
-            return
-
-        if self.should_subtract_world_offset:
-            pred_pos = self.subtract_world_offset(pred_pos)
-        rospy.loginfo("pred_pos: {}".format(pred_pos))
-        if pred_pos[0] < -0.71:
-            return
-        pred_pos_pt = Point(0.01, pred_pos[1], pred_pos[2])
-        rospy.loginfo("pred_pos_pt: {}".format(pred_pos_pt))
-        self.target_position = to_point_stamped(self.pred_pos_frame, pred_pos_pt)
 
     def publish_target_position(self):
         if self.target_position is not None:

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find target_reaching_nengo)/launch/main_TR_CL_nengo_lwa4p.launch" >
+    <arg name="is_multi_robot_experiment" value="True"/>
+    <arg name="gazebo_target_base_y" default="-3.6" />
+  </include>
+</launch>

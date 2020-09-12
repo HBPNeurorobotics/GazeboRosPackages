@@ -30,7 +30,6 @@ class TargetReachingToLWA4PMapping:
         self.pos_diff_tolerance = rospy.get_param('~pos_diff_tolerance', 0.009)
         self.arm_3_joint_index = rospy.get_param('~arm_3_joint_index', 3)
         self.move_to_standby_server = rospy.Service('/move_to_standby', Trigger, self._move_to_standby)
-        #self.nengo_joint_cmds_pub = rospy.Publisher('/nengo_joint_cmds', String, queue_size=1)
 
     def _move_to_standby(self, req):
         self.move_to_standby()
@@ -52,17 +51,6 @@ class TargetReachingToLWA4PMapping:
     def cmd_callback(self, cmd, joint_name):
         self.has_joint_cmd = True
         self.arm_joint_cmds[joint_name] = cmd.data
-        #to_pub = "cmds [j1, j2, j3]: ["
-        #if "arm_1_joint" in self.arm_joint_cmds:
-            #to_pub += str(self.arm_joint_cmds["arm_1_joint"])
-        #to_pub += " ,"
-        #if "arm_2_joint" in self.arm_joint_cmds:
-            #to_pub += str(self.arm_joint_cmds["arm_2_joint"])
-        #to_pub += ", "
-        #if "arm_3_joint" in self.arm_joint_cmds:
-            #to_pub += str(self.arm_joint_cmds["arm_3_joint"])
-        #to_pub += "]"
-        #self.nengo_joint_cmds_pub.publish(to_pub)
 
     def joint_states_callback(self, joint_state):
         for i in range(len(self.joint_names)):
@@ -83,13 +71,6 @@ class TargetReachingToLWA4PMapping:
             positions_to_send[self.arm_3_joint_index - 1] = self.arm_joint_cmds["arm_3_joint"]
         positions_to_send[len(self.joint_names) - 2] = 0.
         positions_to_send[len(self.joint_names) - 1] = -3.
-        #for i in range(3,6):
-            #positions_to_send[i] = 0.0
-        #if self.last_positions_to_send:
-            #pos_diff = list(map(lambda x,y:abs(x-y), self.last_positions_to_send, positions_to_send))
-            #if all(diff <= self.pos_diff_tolerance for diff in pos_diff):
-                #return
-        #self.last_positions_to_send = positions_to_send
         to_pub = "self.arm_joint_cmds: {}, pos to send: {}".format(self.arm_joint_cmds, positions_to_send)
         self.received_joint_cmds_pub.publish(to_pub)
         self.arm_joint_cmds = {}

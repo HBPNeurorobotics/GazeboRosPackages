@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find target_reaching_nengo)/launch/main_TR_CL_nengo_lwa4p.launch" >
+    <arg name="is_quadrat_experiment" value="True"/>
+  </include>
+</launch>
