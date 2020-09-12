@@ -24,7 +24,7 @@ class PubKukaTarget:
         if rospy.get_param('~is_error_experiment', False):
             self.target_points = [Point(0.25, -0.6, 0.7)]
 
-        self.standby_target = to_point_stamped(self.pred_pos_frame, Point(0.25, -0.6, 0.7))
+        self.standby_target = to_point_stamped(self.pred_pos_frame, Point(0.1, -0.35, 0.7))
         self.error = None
         error_topic = rospy.get_param('~error_topic', '/error')
         self.error_sub = rospy.Subscriber(error_topic, Float64MultiArray, self.error_cb, queue_size=1)
@@ -42,6 +42,7 @@ class PubKukaTarget:
             self.target_position = to_point_stamped(self.pred_pos_frame, self.target_points[self.current_target_position])
         else:
             self.target_position = self.standby_target
+            self.is_standby_target = True
             pred_pos_topic = rospy.get_param('~pred_pos_topic', '/pred_pos')
             self.pred_pos_sub = rospy.Subscriber(pred_pos_topic, Float32MultiArray, self.pred_pos_cb, queue_size=1)
             self.should_subtract_world_offset = rospy.get_param('~should_subtract_world_offset', True)
@@ -59,10 +60,12 @@ class PubKukaTarget:
         self.remove_standby_target_server = rospy.Service('/iiwa/remove_standby_target', Trigger, self.remove_standby_target)
 
     def set_standby_target(self, req):
+        self.is_standby_target = True
         self.target_position = self.standby_target
         return {'success': True, 'message': 'set_standby_target'}
 
     def remove_standby_target(self, req):
+        self.is_standby_target = False
         self.target_position = None
         return {'success': True, 'message': 'remove_standby_target'}
 
@@ -77,7 +80,7 @@ class PubKukaTarget:
     def subtract_world_offset(self, position):
         position[0] -= self.world_offset_x
         position[1] -= self.world_offset_y
-        position[1] += 0.12
+        position[1] += 0.03
         position[2] -= self.world_offset_z
         position[2] += 0.08
         return position
@@ -97,7 +100,8 @@ class PubKukaTarget:
                 self.waiting_for_next_position = True
                 self.waiting_start_time = rospy.Time.now()
         else:
-            self.close_gripper()
+            if not self.is_standby_target:
+                self.close_gripper()
 
     def next_target_position(self):
         self.waiting_for_next_position = False
@@ -118,7 +122,7 @@ class PubKukaTarget:
         rospy.loginfo("pred_pos: {}".format(pred_pos))
         if pred_pos[0] < -0.71:
             return
-        pred_pos_pt = Point(0.01, pred_pos[1], pred_pos[2])
+        pred_pos_pt = Point(-0.1, pred_pos[1], pred_pos[2])
         rospy.loginfo("pred_pos_pt: {}".format(pred_pos_pt))
         self.target_position = to_point_stamped(self.pred_pos_frame, pred_pos_pt)
 

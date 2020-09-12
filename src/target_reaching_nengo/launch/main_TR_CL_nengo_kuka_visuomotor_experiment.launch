@@ -2,6 +2,6 @@
 <launch>
   <include file="$(find target_reaching_nengo)/launch/main_TR_CL_nengo_kuka.launch" >
     <arg name="should_use_max_pos_delta" default="True" />
-    <arg name="max_pos_delta" default="0.1" />
+    <arg name="max_pos_delta" default="0.35" />
   </include>
 </launch>
