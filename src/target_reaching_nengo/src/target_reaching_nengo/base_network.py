@@ -38,6 +38,7 @@ class Base_network():
         self.publishing_time_tolerance = rospy.get_param('~publishing_time_tolerance', 0.1)
         base_network_class_data_pub_topic = rospy.get_param('~base_network_class_data_pub_topic', '/base_network_class_data_pub')
         self.base_network_class_data_pub = rospy.Publisher(base_network_class_data_pub_topic, String, queue_size=1)
+        self.should_use_max_pos_delta = rospy.get_param('~should_use_max_pos_delta', False)
 
     def publish_topic(self, t, x):
         now = rospy.get_rostime()
@@ -54,39 +55,31 @@ class Base_network():
                 # NEAR FAR
                 if self._joints_pub[0][i] == self.arm_3_joint_cmd_pos_name:
                     if abs(self.error[0]) >= 1:
-                        #if self.feedback is None:
-                            #self._joints_pub[1][i].publish(x[i])
-                        #else:
-                            next_pos = self.calculate_next_pos(self.feedback.arm.position[self.arm_3_joint_index - 1], x[i], self.error[0])
-                            self.to_pub += 'nf: curr_pos: {}, cmd: {}, next_pos: {}     '.format(self.feedback.arm.position[self.arm_3_joint_index - 1], x[i], next_pos)
-                            self._joints_pub[1][i].publish(next_pos)
+                        next_pos = self.calculate_next_pos(self.feedback.last_used_joint_states[self.arm_3_joint_index - 1], x[i], self.error[0])
+                        self.to_pub += 'nf: curr_pos: {}, cmd: {}, next_pos: {}     '.format(self.feedback.last_used_joint_states[self.arm_3_joint_index - 1], x[i], next_pos)
+                        self._joints_pub[1][i].publish(next_pos)
                 # UP DOWN
                 elif self._joints_pub[0][i] == self.arm_2_joint_cmd_pos_name:
                     if abs(self.error[1]) >= 1:
-                        #if self.feedback is None:
-                            #self._joints_pub[1][i].publish(x[i])
-                        #else:
-                            next_pos = self.calculate_next_pos(self.feedback.arm.position[1], x[i], self.error[1])
-                            self.to_pub += 'ud: curr_pos: {}, cmd: {}, next_pos: {}   '.format(self.feedback.arm.position[1], x[i], next_pos)
-                            self._joints_pub[1][i].publish(next_pos)
+                        next_pos = self.calculate_next_pos(self.feedback.last_used_joint_states[1], x[i], self.error[1])
+                        self.to_pub += 'ud: curr_pos: {}, cmd: {}, next_pos: {}   '.format(self.feedback.last_used_joint_states[1], x[i], next_pos)
+                        self._joints_pub[1][i].publish(next_pos)
                 # LEFT RIGHT
                 elif self._joints_pub[0][i] == self.arm_1_joint_cmd_pos_name:
                     if abs(self.error[2]) >= 1:
-                        #if self.feedback is None:
-                            #self._joints_pub[1][i].publish(x[i])
-                        #else:
-                            next_pos = self.calculate_next_pos(self.feedback.arm.position[0], x[i], self.error[2])
-                            self.to_pub += 'lr: curr_pos: {}, cmd: {}, next_pos: {}     '.format(self.feedback.arm.position[0], x[i], next_pos)
-                            self._joints_pub[1][i].publish(next_pos)
+                        next_pos = self.calculate_next_pos(self.feedback.last_used_joint_states[0], x[i], self.error[2])
+                        self.to_pub += 'lr: curr_pos: {}, cmd: {}, next_pos: {}     '.format(self.feedback.last_used_joint_states[0], x[i], next_pos)
+                        self._joints_pub[1][i].publish(next_pos)
             self.base_network_class_data_pub.publish(self.to_pub)
 
     def calculate_next_pos(self, curr_pos, cmd, curr_error):
+        if not self.should_use_max_pos_delta:
+            return cmd
         pos_diff = cmd - curr_pos
         delta_sign = np.sign(pos_diff)
         delta_factor = self.next_pos_delta_factor * abs(curr_error) * self.next_pos_error_factor
         delta = delta_sign * min(self.max_pos_delta, abs(delta_factor * pos_diff))
-        #next_pos = curr_pos + delta
-        next_pos = curr_pos + delta_sign * self.max_pos_delta
+        next_pos = curr_pos + delta
         self.to_pub += 'calc: curr_pos: {}, delta_sign: {}, delta_factor: {} cmd: {}, next_pos: {}     '.format(curr_pos, delta_sign, delta_factor, cmd, next_pos)
         return next_pos
 
@@ -126,6 +119,7 @@ class Base_network():
                 else:
                     val = (duplette[0][0] +  duplette[1][0]) / 2
                     self.last_used_duplette_index = -1
+                #val = (duplette[0][0] +  duplette[1][0]) / 2
                 res.append([val, duplette[0][1]])
                 for i in range(len(self._joints_pub[0])):
                     for j in range(len(res)):
@@ -142,7 +136,7 @@ class Base_network():
 
             net.f_u= nengo.Ensemble(n_neurons=100, dimensions=len(self.all_joints), radius=2, neuron_type=nengo.Direct(), label ='g(f(u))')   #direct
 
-            if len(self._joints_pub[0]) is not len(self.all_joints):
+            if len(self._joints_pub[0]) is not len(self.all_joints): # using right now with 2 joints for near_far primitive
                 net.f_u_blended = nengo.Ensemble(n_neurons=100, dimensions=len(set(self._joints_pub[0])), radius=2, neuron_type=nengo.Direct(), label= 'g(f(u)) blended')    #direct
                 nengo.Connection(net.f_u, net.f_u_blended, function= blend, synapse=0.001)
                 net.ros_out = nengo.Node(self.publish_topic, size_in=len(self._joints_pub[0]) )

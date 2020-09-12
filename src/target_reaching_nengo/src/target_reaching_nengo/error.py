@@ -53,6 +53,9 @@ class Error(object):
         self.last_target_position_received_time = None
         self.target_position_secs_tolerance = rospy.get_param('~target_position_secs_tolerance', 0.5)
         self.map_phi_to_2pi = rospy.get_param('~map_phi_to_2pi', True)
+        self.should_change_error_near_far_direction = rospy.get_param('~should_change_error_near_far_direction', False)
+        self.should_change_error_up_down_direction = rospy.get_param('~should_change_error_up_down_direction', False)
+        self.should_change_error_left_right_direction = rospy.get_param('~should_change_error_left_right_direction', False)
 
     def target_position_callback(self, data):
         self.subject.position = data.point
@@ -122,15 +125,12 @@ class Error(object):
         else: return [0.0, 0.0, 0.0]
 
 
-
-
-
     # berechnet koordinaten im bezug auf shoulder
     def calc_vector(self, p):
         res = copy.copy(p)
-        res.x = p.x -self.shoulder.position.x
-        res.y = p.y -self.shoulder.position.y
-        res.z = p.z -self.shoulder.position.z
+        res.x = p.x - self.shoulder.position.x
+        res.y = p.y - self.shoulder.position.y
+        res.z = p.z - self.shoulder.position.z
         return res
 
     def check_limit(self, subject):
@@ -161,8 +161,13 @@ class Error(object):
                 if abs(self.dif[i]) > self.threshold[i][1] * 10: error[i] = 3
                 error[i] = error[i] * (self.dif[i] / abs(self.dif[i]))
 
-            #if i == 0 and error[i] > 0:
-                #error[i] = error[i] * 3
+        if self.should_change_error_near_far_direction:
+            error[0] = -error[0]
+        if self.should_change_error_up_down_direction:
+            error[1] = -error[1]
+        if self.should_change_error_left_right_direction:
+            error[2] = -error[2]
+
         return error
 
     def calc_error_2(self):

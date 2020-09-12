@@ -32,6 +32,7 @@ class Feedback(object):
         self.feedback_data_pub = rospy.Publisher(feedback_data_pub_topic, String, queue_size = 1)
         self.joint_states_topic = rospy.get_param('~joint_states_topic', '/joint_states')
         self.is_icub = rospy.get_param('~is_icub', False)
+        self.last_used_joint_states = [0.0 for i in range(len(self.arm.name))]
         if self.is_icub:
             self.icub_sub = []
             for i in range(len(self.arm.name)):
@@ -99,11 +100,13 @@ class Feedback(object):
 
     def get_network_position(self, label, joint, max_val, min_val, noise = False):
         def get_feedback_position(x):
-            res = math.degrees(self.arm.position[joint-1])
+            curr_pos = self.arm.position[joint-1]
+            res = math.degrees(curr_pos)
             #res = min(max_val-1, max(min_val+1, res)) # original
             res = min(max_val, max(min_val, res))
-            to_pub = "[min,max]: [{:.2f}, {:.2f}], joint: {}, arm_pos: {:.2f}, deg: {:.2f} res: {:.2f}".format(min_val, max_val, joint, self.arm.position[joint-1], math.degrees(self.arm.position[joint-1]), res)
+            to_pub = "[min,max]: [{:.2f}, {:.2f}], joint: {}, arm_pos: {:.2f}, deg: {:.2f} res: {:.2f}".format(min_val, max_val, joint, curr_pos, math.degrees(curr_pos), res)
             self.feedback_data_pub.publish(to_pub)
+            self.last_used_joint_states[joint-1] = curr_pos
             return res
 
         def get_mean(x):

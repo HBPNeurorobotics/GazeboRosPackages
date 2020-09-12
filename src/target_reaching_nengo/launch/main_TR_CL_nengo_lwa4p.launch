@@ -17,6 +17,7 @@
   <arg name="follow_joint_trajectory_param" default="/arm/arm_eff_traj_controller/follow_joint_trajectory" />
   <arg name="next_pos_delta_factor" default="0.7" />
   <arg name="next_pos_error_factor" default="0.33" />
+  <arg name="should_use_max_pos_delta" default="False" />
   <arg name="max_pos_delta" default="0.35" />
   <arg name="map_phi_to_2pi" default="True" />
   <arg name="pred_pos_frame" default="arm_base_link" />
@@ -77,6 +78,9 @@
     <param name="target_position_topic" value="$(arg target_position_topic)" />
     <param name="error_topic" value="$(arg error_topic)" />
     <param name="error_threshold" value="$(arg error_threshold)" />
+    <param name="should_use_max_pos_delta" value="$(arg should_use_max_pos_delta)" />
+    <param name="max_pos_delta" value="$(arg max_pos_delta)" />
+    <param name="next_pos_error_factor" value="$(arg next_pos_error_factor)" />
   </node>
 
   <node name="lwa4p_mapping" pkg="target_reaching_nengo" type="target_reaching_to_lwa4p_mapping.py" output="screen">

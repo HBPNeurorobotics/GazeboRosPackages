@@ -1,23 +1,27 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="arm_1_joint_cmd_pos_name" default="/icub/torso_yaw/pos" />
-  <arg name="arm_2_joint_cmd_pos_name" default="/icub/torso_pitch/pos" />
-  <arg name="arm_3_joint_cmd_pos_name" default="/icub/l_elbow/pos" />
-  <arg name="up_down_lower_limit" default="[-0.3]" />
-  <arg name="up_down_upper_limit" default="[0.3]" />
-  <arg name="left_right_lower_limit" default="[-1.0]" />
-  <arg name="left_right_upper_limit" default="[1.0]" />
-  <arg name="near_far_lower_limit" default="[-0.3, 0.5]" />
-  <arg name="near_far_upper_limit" default="[0.3, 1.9]" />
+  <arg name="arm_1_joint_cmd_pos_name" default="/icub/joint1" />
+  <arg name="arm_2_joint_cmd_pos_name" default="/icub/joint2" />
+  <arg name="arm_3_joint_cmd_pos_name" default="/icub/joint3" />
+  <arg name="joint_1" default="/icub/torso_yaw/pos" />
+  <arg name="joint_2" default="/icub/l_shoulder_pitch/pos" />
+  <arg name="joint_3" default="/icub/l_elbow/pos" />
+  <arg name="up_down_lower_limit" default="[-1.6]" />
+  <arg name="up_down_upper_limit" default="[0.1]" />
+  <arg name="left_right_lower_limit" default="[-0.7]" />
+  <arg name="left_right_upper_limit" default="[0.7]" />
+  <arg name="near_far_lower_limit" default="[-1.6, 0.0]" />
+  <arg name="near_far_upper_limit" default="[0.1, 1.9]" />
   <arg name="joint_states_topic" default="/icub/joint_states" />
-  <arg name="shoulder_frame" default="root_link" />
+  <arg name="shoulder_frame" default="neck_2" />
   <arg name="tcp_frame" default="l_hand" />
-  <arg name="joint_names" default="['/icub/torso_yaw/pos', '/icub/torso_pitch/pos', '/icub/l_elbow/pos']" />
+  <arg name="joint_names" default="[$(arg joint_1), $(arg joint_2), $(arg joint_3)]" />
   <arg name="arm_3_joint_index" default="3" />
   <arg name="follow_joint_trajectory_param" default="/icub/effort_trajectory_controller/follow_joint_trajectory" />
   <arg name="next_pos_delta_factor" default="0.7" />
   <arg name="next_pos_error_factor" default="0.33" />
-  <arg name="max_pos_delta" default="0.35" />
+  <arg name="should_use_max_pos_delta" default="False" />
+  <arg name="max_pos_delta" default="0.1" />
   <arg name="map_phi_to_2pi" default="False" />
   <arg name="pred_pos_frame" default="world" />
   <arg name="pred_pos_topic" default="/pred_pos_0" />
@@ -33,6 +37,8 @@
   <arg name="gazebo_target_base_z" default="0" />
   <arg name="error_threshold" default="0.05" />
   <arg name="is_icub" default="True" />
+  <arg name="should_change_error_near_far_direction" default="True" />
+  <arg name="should_change_error_left_right_direction" default="True" />
 
   <node name="pub_icub_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen">
     <param name="target_position_topic" value="$(arg target_position_topic)" />
@@ -78,15 +84,19 @@
     <param name="error_topic" value="$(arg error_topic)" />
     <param name="error_threshold" value="$(arg error_threshold)" />
     <param name="is_icub" value="$(arg is_icub)" />
+    <param name="should_use_max_pos_delta" value="$(arg should_use_max_pos_delta)" />
+    <param name="max_pos_delta" value="$(arg max_pos_delta)" />
+    <param name="next_pos_error_factor" value="$(arg next_pos_error_factor)" />
+    <param name="should_change_error_left_right_direction" value="$(arg should_change_error_left_right_direction)" />
+    <param name="should_change_error_left_right_direction" value="$(arg should_change_error_left_right_direction)" />
   </node>
 
-  <!--<node name="kuka_mapping" pkg="target_reaching_nengo" type="target_reaching_to_kuka_mapping.py" output="screen">
+  <node name="icub_mapping" pkg="target_reaching_nengo" type="target_reaching_to_icub_mapping.py" output="screen">
     <param name="arm_1_joint_cmd_pos_name" value="$(arg arm_1_joint_cmd_pos_name)" />
     <param name="arm_2_joint_cmd_pos_name" value="$(arg arm_2_joint_cmd_pos_name)" />
     <param name="arm_3_joint_cmd_pos_name" value="$(arg arm_3_joint_cmd_pos_name)" />
-    <param name="joint_states_topic" value="$(arg joint_states_topic)" />
-    <rosparam param="joint_names" subst_value="True">$(arg joint_names)</rosparam>
-    <param name="arm_3_joint_index" value="$(arg arm_3_joint_index)" />
-    <param name="follow_joint_trajectory_param" value="$(arg follow_joint_trajectory_param)" />
-  </node>-->
+    <param name="joint_1" value="$(arg joint_1)" />
+    <param name="joint_2" value="$(arg joint_2)" />
+    <param name="joint_3" value="$(arg joint_3)" />
+  </node>
 </launch>

@@ -77,7 +77,6 @@ print numbers[3:6]
     '''
 
     def get_u_TR(self, x):
-
         delta  = (int)(round(x[0]))
         u_val = min(1.0, max(0.0, x[1] / self._neuron_number ))   #  (self._neuron_number - 1)
         u_indice = self._data[0, (np.abs(self._data[1] - u_val)).argmin()]

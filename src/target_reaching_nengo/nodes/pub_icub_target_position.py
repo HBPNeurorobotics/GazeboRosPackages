@@ -16,13 +16,12 @@ class PubPandaTarget:
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
-        #triangle_points = [Point(0.2, 0.25, 0.1), Point(0.2, 0.15, 0.13), Point(0.15, -0.1, 0.1)]
-        vertical_points = [Point(0.2, -0.2, 0.1), Point(0.2, -0.2, 0.15), Point(0.2, -0.2, 0.05)]
-        for point in vertical_points:
+        testing_points = [Point(-0.15, -0.25, -0.05), Point(-0.01, -0.25, -0.05), Point(-0.13, -0.25, 0.1), Point(-0.25, -0.05, 0.13)]
+        self.target_points = testing_points
+        for point in self.target_points:
             #point.x += -1.356
             #point.y += 0.671
             point.z += 0.617
-        self.target_points = vertical_points
         self.current_target_position = 0
         self.using_target_points = rospy.get_param('~using_target_points', True)
         self.waiting_for_next_position = False
