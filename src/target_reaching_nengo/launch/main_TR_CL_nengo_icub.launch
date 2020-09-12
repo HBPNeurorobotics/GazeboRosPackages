@@ -87,7 +87,7 @@
     <param name="should_use_max_pos_delta" value="$(arg should_use_max_pos_delta)" />
     <param name="max_pos_delta" value="$(arg max_pos_delta)" />
     <param name="next_pos_error_factor" value="$(arg next_pos_error_factor)" />
-    <param name="should_change_error_left_right_direction" value="$(arg should_change_error_left_right_direction)" />
+    <param name="should_change_error_near_far_direction" value="$(arg should_change_error_near_far_direction)" />
     <param name="should_change_error_left_right_direction" value="$(arg should_change_error_left_right_direction)" />
   </node>
 
