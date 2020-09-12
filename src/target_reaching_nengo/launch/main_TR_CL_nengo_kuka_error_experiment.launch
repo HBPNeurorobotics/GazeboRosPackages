@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find target_reaching_nengo)/launch/main_TR_CL_nengo_kuka.launch" >
+    <arg name="is_error_experiment" value="True"/>
+  </include>
+</launch>

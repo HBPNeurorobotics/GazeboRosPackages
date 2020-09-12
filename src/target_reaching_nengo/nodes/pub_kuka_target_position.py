@@ -16,36 +16,39 @@ class PubKukaTarget:
         self.pred_pos_frame = rospy.get_param('~pred_pos_frame', 'world')
         self.gazebo_pos_frame = rospy.get_param('~gazebo_pos_frame', 'world')
 
-        #self.target_points = [Point(0.25, -0.6, 0.1), Point(0.25, -0.6, 0.5), Point(-0.25, -0.6, 0.5), Point(-0.25, -0.6, 0.1)]
-        #self.target_points = [Point(0.25, -0.9, 0.1), Point(0.25, -0.9, 0.5), Point(-0.25, -0.9, 0.5), Point(-0.25, -0.9, 0.1)]
-        quadrat_points = [Point(0.25, -0.6, 0.5), Point(0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
-        triangle_points = [Point(0.25, -0.6, 0.5), Point(0.1, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
-        error_experiment_points = [Point(0.25, -0.6, 0.7)]
-        self.target_points = quadrat_points
-        self.current_target_position = 0
-        self.using_target_points = rospy.get_param('~using_target_points', True)
-        self.waiting_for_next_position = False
-        self.waiting_start_time = None
-        self.next_target_waiting_seconds = rospy.get_param('~next_target_waiting_seconds', 3.0)
-        self.standby_target = self.target_points[self.current_target_position]
-        self.is_stanby_target = True
-        self.target_position = to_point_stamped(self.pred_pos_frame, self.standby_target)
+        self.target_points = None
+        if rospy.get_param('~is_quadrat_experiment', False):
+            self.target_points = [Point(0.25, -0.6, 0.5), Point(0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
+        if rospy.get_param('~is_multi_robot_experiment', False):
+            self.target_points = [Point(0.25, -0.6, 0.5), Point(0.1, -0.6, 0.9), Point(-0.25, -0.6, 0.5)]
+        if rospy.get_param('~is_error_experiment', False):
+            self.target_points = [Point(0.25, -0.6, 0.7)]
 
-        pred_pos_topic = rospy.get_param('~pred_pos_topic', '/pred_pos')
-        self.pred_pos_sub = rospy.Subscriber(pred_pos_topic, Float32MultiArray, self.pred_pos_cb, queue_size=1)
-
+        self.standby_target = to_point_stamped(self.pred_pos_frame, Point(0.25, -0.6, 0.7))
         self.error = None
         error_topic = rospy.get_param('~error_topic', '/error')
         self.error_sub = rospy.Subscriber(error_topic, Float64MultiArray, self.error_cb, queue_size=1)
 
+        self.target_position = None
         target_position_topic = rospy.get_param('~target_position_topic', '/target_position')
         self.target_position_pub = rospy.Publisher(target_position_topic, PointStamped, queue_size=1)
 
-        self.should_subtract_world_offset = rospy.get_param('~should_subtract_world_offset', True)
-        if self.should_subtract_world_offset:
-            self.world_offset_x = 1.0
-            self.world_offset_y = -0.6
-            self.world_offset_z = 0.6
+        self.using_target_points = self.target_points != None
+        if self.using_target_points:
+            self.current_target_position = 0
+            self.waiting_for_next_position = False
+            self.waiting_start_time = None
+            self.next_target_waiting_seconds = rospy.get_param('~next_target_waiting_seconds', 3.0)
+            self.target_position = to_point_stamped(self.pred_pos_frame, self.target_points[self.current_target_position])
+        else:
+            self.target_position = self.standby_target
+            pred_pos_topic = rospy.get_param('~pred_pos_topic', '/pred_pos')
+            self.pred_pos_sub = rospy.Subscriber(pred_pos_topic, Float32MultiArray, self.pred_pos_cb, queue_size=1)
+            self.should_subtract_world_offset = rospy.get_param('~should_subtract_world_offset', True)
+            if self.should_subtract_world_offset:
+                self.world_offset_x = rospy.get_param('~gazebo_target_base_x', 1.0)
+                self.world_offset_y = rospy.get_param('~gazebo_target_base_y', -0.6)
+                self.world_offset_z = rospy.get_param('~gazebo_target_base_z', 0.6)
 
         gripper_left_topic = rospy.get_param('~gripper_left_topic', '/iiwa/gripper_left_effort_controller/command')
         gripper_right_topic = rospy.get_param('~gripper_right_topic', '/iiwa/gripper_right_effort_controller/command')
@@ -56,12 +59,10 @@ class PubKukaTarget:
         self.remove_standby_target_server = rospy.Service('/iiwa/remove_standby_target', Trigger, self.remove_standby_target)
 
     def set_standby_target(self, req):
-        self.is_stanby_target = True
-        self.target_position = to_point_stamped(self.pred_pos_frame, self.standby_target)
+        self.target_position = self.standby_target
         return {'success': True, 'message': 'set_standby_target'}
 
     def remove_standby_target(self, req):
-        self.is_stanby_target = False
         self.target_position = None
         return {'success': True, 'message': 'remove_standby_target'}
 
@@ -81,26 +82,30 @@ class PubKukaTarget:
         position[2] += 0.08
         return position
 
-    def error_cb(self, data):
-        self.error = data.data
+    def error_cb(self, msg):
+        self.error = msg.data
         has_error = any(self.error)
         if has_error:
+            self.open_gripper()
             return
-        if self.waiting_for_next_position:
-            now = rospy.Time.now()
-            if (now - self.waiting_start_time) > rospy.Duration(self.next_target_waiting_seconds):
-                self.next_target_position()
+        if self.using_target_points:
+            if self.waiting_for_next_position:
+                now = rospy.Time.now()
+                if (now - self.waiting_start_time) > rospy.Duration(self.next_target_waiting_seconds):
+                    self.next_target_position()
+            else:
+                self.waiting_for_next_position = True
+                self.waiting_start_time = rospy.Time.now()
         else:
-            self.waiting_for_next_position = True
-            self.waiting_start_time = rospy.Time.now()
+            self.close_gripper()
 
     def next_target_position(self):
         self.waiting_for_next_position = False
         self.current_target_position = (self.current_target_position + 1) % len(self.target_points)
         self.target_position.point = self.target_points[self.current_target_position]
 
-    def pred_pos_cb(self, data):
-        predictions = [e for e in data.data if e == e]
+    def pred_pos_cb(self, msg):
+        predictions = [e for e in msg.data if e == e]
         if predictions == [] or len(predictions) < 3:
             return
         pred_pos = predictions[-3:]
@@ -128,5 +133,4 @@ if __name__== '__main__':
     rate = rospy.Rate(30)
     while not rospy.is_shutdown():
         pub_target.publish_target_position()
-        pub_target.open_gripper()
         rate.sleep()
