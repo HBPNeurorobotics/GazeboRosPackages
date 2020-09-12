@@ -72,13 +72,6 @@ class TargetReachingToPandaMapping:
         #TODO: remove this hack for moving 7th joint
         positions_to_send[len(positions_to_send)-2] = 2.
         positions_to_send[len(positions_to_send)-1] = 1.
-        #for i in range(3,6):
-            #positions_to_send[i] = 0.0
-        #if self.last_positions_to_send:
-            #pos_diff = list(map(lambda x,y:abs(x-y), self.last_positions_to_send, positions_to_send))
-            #if all(diff <= self.pos_diff_tolerance for diff in pos_diff):
-                #return
-        #self.last_positions_to_send = positions_to_send
         to_pub = "self.arm_joint_cmds: {}, pos to send: {}".format(self.arm_joint_cmds, positions_to_send)
         self.received_joint_cmds_pub.publish(to_pub)
         self.arm_joint_cmds = {}
