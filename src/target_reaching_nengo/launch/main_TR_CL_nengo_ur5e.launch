@@ -30,10 +30,11 @@
   <arg name="feedback_data_pub_topic" default="/ur5e/feedback_data_pub_topic" />
   <arg name="gazebo_target_model_name" default="unit_sphere_3" />
   <arg name="gazebo_target_base_x" default="1.0" />
-<!--   <arg name="gazebo_target_base_y" default="2.4" /> -->
   <arg name="gazebo_target_base_y" default="-0.6" />
   <arg name="gazebo_target_base_z" default="0.6" />
   <arg name="error_threshold" default="0.07" />
+  <arg name="is_quadrat_experiment" default="False" />
+  <arg name="is_multi_robot_experiment" default="False" />
 
   <node name="pub_ur5e_target_as_marker" pkg="target_reaching_nengo" type="pub_target_pos_as_vis_marker.py" output="screen">
     <param name="target_position_topic" value="$(arg target_position_topic)" />
@@ -53,6 +54,8 @@
     <param name="pred_pos_topic" value="$(arg pred_pos_topic)" />
     <param name="target_position_topic" value="$(arg target_position_topic)" />
     <param name="error_topic" value="$(arg error_topic)" />
+    <param name="is_quadrat_experiment" value="$(arg is_quadrat_experiment)" />
+    <param name="is_multi_robot_experiment" value="$(arg is_multi_robot_experiment)" />
   </node>
 
   <node name="Main_TR_CL_nengo_node_ur5e" pkg="target_reaching_nengo" type="main_TR_CL_node.py" output="screen">
